@@ -1,6 +1,5 @@
 import { useReducer, useEffect } from 'react';
 import createPersistedState from 'use-persisted-state';
-import { stat } from 'fs';
 
 export interface Deck {
   id: string;
@@ -46,7 +45,7 @@ const reducer = (state: State, action: Actions) => {
       }
       let newState = { ...state };
       delete newState.decks[action.payload];
-      newState.deckIds  = newState.deckIds.filter(id => id !== action.payload);
+      newState.deckIds = newState.deckIds.filter(id => id !== action.payload);
       // If the deck you are deleting is the one that is active,
       // set the current deck to the first one in the list.
       if (action.payload === newState.currentDeckId) {

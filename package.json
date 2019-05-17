@@ -12,7 +12,8 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "use-persisted-state": "^0.3.0"
+    "use-persisted-state": "^0.3.0",
+    "uuidv4": "^4.0.0"
   },
   "scripts": {
     "dev": "next",
