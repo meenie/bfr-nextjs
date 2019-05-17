@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/styles';
 import { Theme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
-import useRedditApi from '../hooks/useRedditApi';
+import useSubreddit from '../hooks/useSubreddit';
 import { FormControl, Select, MenuItem } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,12 +25,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Subreddit(props: any) {
-  const { posts, isLoading, setFilter, filter } = useRedditApi(props.subreddit, props.filter);
+  const { posts, isLoading, setFilter, filter } = useSubreddit(props.subreddit);
   const classes = useStyles();
+
   return (
     <div>
-      <h1>/r/{props.subreddit || 'all'}</h1>
-      <FormControl className={classes.formControl}>
+      <h1>/r/{props.subreddit}</h1>
+      {<FormControl className={classes.formControl}>
         <Select
           onChange={(e: any) => setFilter(e.target.value)}
           value={filter}
@@ -40,7 +41,7 @@ export default function Subreddit(props: any) {
           <MenuItem value={'top'}>Top</MenuItem>
           <MenuItem value={'hot'}>Hot</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl>}
       {isLoading && <CircularProgress className={classes.progress} /> }
       {posts.map((post: any) => (
         <Paper key={post.id} className={classes.paper}>

@@ -1,6 +1,7 @@
 import {useEffect, useReducer, useState, useCallback, useRef} from 'react';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
+import createPersistedState from 'use-persisted-state';
 
 import axios from 'axios';
 
@@ -58,8 +59,8 @@ const reducer = (state: State, action: Action) => {
   }
 }
 
-const useRedditApi = (subreddit: string = 'all', initialFilter: string = 'hot') => {
-  const [filter, setFilter] = useState(initialFilter);
+const useSubreddit = (subreddit: string = 'all', initialFilter: string = 'hot') => {
+  const [filter, setFilter] = createPersistedState(`subreddit-${subreddit}`)(initialFilter);
   const [state, dispatch] = useReducer(reducer, {
     posts: [],
     isLoading: false
@@ -67,12 +68,11 @@ const useRedditApi = (subreddit: string = 'all', initialFilter: string = 'hot') 
   const [refreshTiming, setRefreshTiming] = useState(SHORT_TIMER);
   // Used to store current subreddit/filter combo.
   const combo = useRef<string>();
+  const mounted = useRef(true);
 
   const fetchData = useCallback(() => {
-    let didCancel = false;
     // Only want to show loading if the combo has changed.
     let shouldShowLoading = combo.current !== subreddit + filter
-
 
     if (shouldShowLoading) {
       combo.current = subreddit + filter
@@ -83,7 +83,7 @@ const useRedditApi = (subreddit: string = 'all', initialFilter: string = 'hot') 
     const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
 
     axios(url).then((result: any) => {
-      if (! didCancel) {
+      if (mounted.current) {
         const payload = result.data.data.children
           .sort((a: any, b: any) => {
           if (filter === 'rising') {
@@ -92,20 +92,18 @@ const useRedditApi = (subreddit: string = 'all', initialFilter: string = 'hot') 
 
           return 0;
         })
-        dispatch({ type: 'FETCH_SUCCESS', payload})
+
+        dispatch({ type: 'FETCH_SUCCESS', payload});
       }
     }).catch((error) => {
-      if (! didCancel) {
+      if (mounted.current) {
         dispatch({ type: 'FETCH_FAILURE', payload: error });
       }
     });
+  }, [subreddit, filter]);
 
-    return () => {
-      didCancel = true;
-    }
-  }, [subreddit]);
-
-
+  // Convience state to check if we are still mounted
+  useEffect(() => () => mounted.current = false, []);
   useEffect(fetchData, [fetchData]);
   useInterval(fetchData, refreshTiming);
   useEventListener('visibilitychange', () => {
@@ -115,4 +113,4 @@ const useRedditApi = (subreddit: string = 'all', initialFilter: string = 'hot') 
   return { ...state, setFilter, filter };
 }
 
-export default useRedditApi;
+export default useSubreddit;
