@@ -22,6 +22,11 @@ class MyApp extends App {
         <Head>
           <title>Bang! for Reddit</title>
         </Head>
+        <style jsx global>{`
+          body, html, #__next {
+            height: 100%;
+          }
+        `}</style>
         <ThemeProvider theme={theme}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />

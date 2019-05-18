@@ -24,15 +24,26 @@ const initialState: DecksState = {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     grid: {
-      marginTop: theme.spacing(10)
+      display: 'flex',
+      height: '100%',
+      marginTop: '100px'
+    },
+    gridItem: {
+      flex: '0 0 45%',
+      //marginBottom: '350px'
     },
     textField: {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
       width: 200,
     },
-    input: {
-      color: 'white'
+    form: {
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'space-evenly'
+    },
+    paper: {
+      padding: theme.spacing(1)
     }
   })
 );
@@ -62,7 +73,9 @@ export default function App() {
     return null;
   }
 
-  const add = () => {
+  const add = (event) => {
+    event.preventDefault();
+
     const id = uuid();
     addDeck({
       id,
@@ -89,50 +102,34 @@ export default function App() {
               ))}
             </Tabs>
           </Box>
-          <Box>
-            <TextField
-              label="Deck Name"
-              onChange={(event) => setDeckName(event.target.value)}
-              value={deckName}
-              className={classes.textField}
-              InputLabelProps={{
-                className: classes.input
-              }}
-              InputProps={{
-                className: classes.input
-              }}
-              />
-            <TextField
-              label="Subreddits"
-              onChange={(event) => setSubreddits(event.target.value)}
-              value={subreddits}
-              className={classes.textField}
-              FormHelperTextProps={{
-                className: classes.input
-              }}
-              InputLabelProps={{
-                className: classes.input
-              }}
-              InputProps={{
-                className: classes.input
-              }}
-              />
-            <Button variant="contained" color="secondary" onClick={add}>Add</Button>
-          </Box>
-
+          <Paper className={classes.paper}>
+            <form className={classes.form} onSubmit={add}>
+              <TextField
+                label="Deck Name"
+                onChange={(event) => setDeckName(event.target.value)}
+                value={deckName}
+                className={classes.textField}
+                />
+              <TextField
+                label="Subreddits"
+                onChange={(event) => setSubreddits(event.target.value)}
+                value={subreddits}
+                className={classes.textField}
+                />
+              <Button variant="contained" type="submit">Add</Button>
+            </form>
+          </Paper>
         </Toolbar>
       </AppBar>
       <Grid
         container
-        direction="row"
-        alignItems="stretch"
         className={classes.grid}
+        wrap="nowrap"
       >
         {activeDeck.subredditIds.map((subredditId: string) => (
           <Grid
             item
-            xs={12}
-            md={6}
+            className={classes.gridItem}
             key={subredditId}>
               <Subreddit subreddit={subredditId} />
           </Grid>
