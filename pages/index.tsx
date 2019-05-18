@@ -6,8 +6,8 @@ import Toolbar from '@material-ui/core/Toolbar';
 import uuid from 'uuidv4';
 
 import Subreddit from '../components/Subreddit';
-import useDecks, { State as DecksState, Deck } from '../hooks/useDecks';
-import { Typography, Tabs, Tab, Divider, TextField, makeStyles, Theme, createStyles, Button, Paper, Box } from '@material-ui/core';
+import useDecks, { State as DecksState } from '../hooks/useDecks';
+import { Typography, Tabs, Tab, TextField, makeStyles, Theme, createStyles, Button, Paper, Box } from '@material-ui/core';
 
 const initialState: DecksState = {
   currentDeckId: 'default',
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
     grid: {
       display: 'flex',
       height: '100%',
-      marginTop: '100px'
+      marginTop: '67px'
     },
     gridItem: {
       flex: '0 0 45%',

@@ -23,6 +23,9 @@ class MyApp extends App {
           <title>Bang! for Reddit</title>
         </Head>
         <style jsx global>{`
+          html {
+            padding-bottom: 201px
+          }
           body, html, #__next {
             height: 100%;
           }
