@@ -59,8 +59,8 @@ const reducer = (state: State, action: Action) => {
   }
 }
 
-const useSubreddit = (subreddit: string = 'all', initialFilter: string = 'hot') => {
-  const [filter, setFilter] = createPersistedState(`subreddit-${subreddit}`)(initialFilter);
+const useSubreddit = (subreddit: string, deckId: string, initialFilter: string = 'hot') => {
+  const [filter, setFilter] = createPersistedState(`subreddit-${deckId}-${subreddit}`)(initialFilter);
   const [state, dispatch] = useReducer(reducer, {
     posts: [],
     isLoading: false

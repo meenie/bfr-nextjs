@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React from 'react';
 import { createStyles, makeStyles } from '@material-ui/styles';
 import { Theme } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -35,13 +35,14 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Subreddit(props: any) {
-  const { posts, isLoading, setFilter, filter } = useSubreddit(props.subreddit);
+export default function Subreddit({subreddit, deckId}) {
+  const { posts, isLoading, setFilter, filter } = useSubreddit(subreddit, deckId);
   const classes = useStyles();
 
   return (
+
     <Box className={classes.subredditWrapper}>
-      <h1>/r/{props.subreddit}</h1>
+      <h1>/r/{subreddit}</h1>
       {<FormControl className={classes.formControl}>
         <Select
           onChange={(e: any) => setFilter(e.target.value)}
