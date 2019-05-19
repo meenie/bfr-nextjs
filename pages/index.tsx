@@ -1,8 +1,7 @@
 
-import { useState, useEffect, Fragment } from 'react';
+import { NoSsr } from '@material-ui/core';
 
 import useDecks, { State as DecksState } from '../hooks/useDecks';
-
 import TopBar from '../components/TopBar';
 import Subreddits from '../components/Subreddits';
 
@@ -18,8 +17,6 @@ const initialState: DecksState = {
   }
 }
 
-
-
 export default function App() {
   const {
     activeDeck,
@@ -30,19 +27,8 @@ export default function App() {
     activateDeck
   } = useDecks(initialState);
 
-  const [isBrowser, setIsBrowser] = useState(false);
-
-  // useEffect() ties into componentDidMount which doesn't run on the server side.
-  useEffect(() => {
-    setIsBrowser(true);
-  });
-  // Disable SSR because we are relying on LocalStorage :-/
-  if (! isBrowser) {
-    return null;
-  }
-
   return (
-    <Fragment>
+    <NoSsr>
       <TopBar
         activateDeck={activateDeck}
         decks={decks}
@@ -51,6 +37,6 @@ export default function App() {
         addDeck={addDeck}
       />
       <Subreddits activeDeck={activeDeck} />
-    </Fragment>
+    </NoSsr>
   );
 }

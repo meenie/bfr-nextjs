@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import { Typography, Tabs, Tab, TextField, makeStyles, Theme, createStyles, Button, Paper, Box } from '@material-ui/core';
+import {
+  Typography,
+  Tabs,
+  Tab,
+  TextField,
+  makeStyles,
+  Theme,
+  createStyles,
+  Button,
+  Box
+} from '@material-ui/core';
 import uuid from 'uuidv4';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -16,9 +26,6 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: 'baseline',
       justifyContent: 'space-evenly'
     },
-    paper: {
-      padding: theme.spacing(1)
-    }
   })
 );
 
@@ -46,16 +53,21 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
     <AppBar position="fixed">
       <Toolbar>
         <Box>
-          <Typography variant="h6">Bang! for Reddit</Typography>
+          <Typography noWrap variant="h6">Bang! for Reddit</Typography>
         </Box>
-        <Box flexGrow={1}>
-          <Tabs value={activeDeck.id} onChange={(event, deckId) => activateDeck(deckId)}>
+        <Box width="50%">
+          <Tabs
+            value={activeDeck.id}
+            variant="scrollable"
+            scrollButtons="on"
+            onChange={(event, deckId) => activateDeck(deckId)}>
             {deckIds.map((deckId: string) => (
               <Tab key={deckId} value={deckId} label={decks[deckId].name} />
             ))}
           </Tabs>
         </Box>
-        <Paper className={classes.paper}>
+        <Box flexGrow={1}></Box>
+        <Box>
           <form className={classes.form} onSubmit={add}>
             <TextField
               label="Deck Name"
@@ -71,7 +83,7 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
               />
             <Button variant="contained" type="submit">Add</Button>
           </form>
-        </Paper>
+        </Box>
       </Toolbar>
     </AppBar>
   )

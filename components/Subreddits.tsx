@@ -8,11 +8,13 @@ const useStyles = makeStyles((theme: Theme) =>
     grid: {
       display: 'flex',
       height: '100%',
-      marginTop: '67px'
+      marginTop: theme.spacing(10)
+    },
+    gridItemLessThanThree: {
+      flex: '0 0 50%'
     },
     gridItem: {
       flex: '0 0 45%',
-      //marginBottom: '350px'
     },
     textField: {
       marginLeft: theme.spacing(1),
@@ -32,17 +34,19 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Subreddits({activeDeck}) {
   const classes = useStyles();
+  const subredditCount = activeDeck.subredditIds.length;
 
   return(
     <Grid
       container
       className={classes.grid}
-      wrap="nowrap"
-    >
+      wrap="nowrap">
       {activeDeck.subredditIds.map((subredditId: string) => (
         <Grid
           item
-          className={classes.gridItem}
+          className={
+            subredditCount < 3 ? classes.gridItemLessThanThree : classes.gridItem
+          }
           key={subredditId + activeDeck.id}>
             <Subreddit subreddit={subredditId} deckId={activeDeck.id} />
         </Grid>
