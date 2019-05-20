@@ -18,29 +18,57 @@ type Action =
 const REDDIT_URL = 'https://www.reddit.com';
 const SHORT_TIMER = 5e3;
 const LONG_TIMER = 5 * 60e3;
+const IMGUR_REGEX = /imgur\.com\/(.*?)\.gifv?/;
+const GFYCAT_REGEX = /^http(?:s?):\/\/thumbs.gfycat.com\/(.*?)-size_restricted.gif$/;
 
+const extractGifUrl = (post: any) => {
+	let matches;
+	if ((matches = post.url.match(IMGUR_REGEX))) {
+		return `https://i.imgur.com/${matches[1]}.mp4`;
+	}
+
+	if (!post.media) {
+		return null;
+	}
+
+	if (post.media.reddit_video) {
+		if (!post.media.reddit_video.is_gif) {
+			return null;
+		}
+
+		return `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`;
+	} else if (post.media.type) {
+		switch (post.media.type) {
+			case 'gfycat.com': {
+				const url = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
+				if (url) {
+					return `https://giant.gfycat.com/${url[1]}.webm`;
+				}
+			}
+		}
+	} else {
+		return null;
+	}
+};
 const extractVideoUrl = (post: any) => {
 	if (!post.media) {
 		return null;
 	}
 
 	if (post.media.reddit_video) {
+		if (post.media.reddit_video.is_gif) {
+			return null;
+		}
+
 		return `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`;
 	} else if (post.media.type) {
 		switch (post.media.type) {
-			case 'gfycat.com': {
-				const url = post.media.oembed.thumbnail_url.match(
-					/^http(?:s?):\/\/thumbs.gfycat.com\/(.*?)-size_restricted.gif$/
-				);
-				if (url) {
-					return `https://giant.gfycat.com/${url[1]}.webm`;
-				}
-			}
 			case 'streamable.com':
 			case 'vimeo.com': {
 				return post.url;
 			}
-			case 'imgur.com': {
+			case 'imgur.com':
+			case 'gfycat.com': {
 				return null;
 			}
 			default:
@@ -71,10 +99,10 @@ const reducer = (state: State, action: Action) => {
 					return {
 						id: post.data.id,
 						order: index,
-						title: post.data.title,
+						title: post.data.title.replace(/&amp;/g, '&'),
 						url,
-						isVideo: post.data.is_video,
 						videoUrl: extractVideoUrl(post.data),
+						gifUrl: extractGifUrl(post.data),
 						score: post.data.score,
 						subreddit: post.data.subreddit,
 						author: post.data.author,
@@ -89,7 +117,7 @@ const reducer = (state: State, action: Action) => {
 								? `${REDDIT_URL}/r/${post.data.subreddit}`
 								: `${REDDIT_URL}/domain/${post.data.domain}`,
 						selftext: post.data.selftext,
-						selftext_html: !!post.data.selftext_html
+						selftextHtml: !!post.data.selftext_html
 							? post.data.selftext_html
 									.replace(/&lt;/g, '<')
 									.replace(/&gt;/g, '>')

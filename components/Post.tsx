@@ -41,7 +41,8 @@ export default function Post({ post, setPauseRefresh }) {
 	return (
 		<Card className={classes.card}>
 			{post.image &&
-			!post.videoUrl && <CardMedia className={classes.media} image={post.image} title={post.title} />}
+			!post.videoUrl &&
+			!post.gifUrl && <CardMedia className={classes.media} image={post.image} title={post.title} />}
 			{post.videoUrl && (
 				<ReactPlayer
 					width={660}
@@ -57,6 +58,21 @@ export default function Post({ post, setPauseRefresh }) {
 					onEnded={onVideoStop}
 				/>
 			)}
+			{post.gifUrl && (
+				<ReactPlayer
+					width={660}
+					height={371}
+					url={post.gifUrl}
+					controls={true}
+					playing
+					light={post.image}
+					loop
+					onStart={onVideoStart}
+					onPause={onVideoStop}
+					onPlay={onVideoStart}
+					onEnded={onVideoStop}
+				/>
+			)}
 			<CardHeader
 				title={post.title}
 				subheader={`Posted by ${post.author} to r/${post.subreddit}`}
@@ -65,10 +81,10 @@ export default function Post({ post, setPauseRefresh }) {
 				}}
 			/>
 
-			{post.selftext_html && (
+			{post.selftextHtml && (
 				<CardContent>
-					<Collapse in={expanded} collapsedHeight={'50px'}>
-						<SanitizedHTML html={post.selftext_html} />
+					<Collapse in={expanded} collapsedHeight={'75px'}>
+						<SanitizedHTML html={post.selftextHtml} />
 					</Collapse>
 					<Button size="small" onClick={() => setExpanded(!expanded)}>
 						View {expanded ? 'Less' : 'More'}
