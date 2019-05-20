@@ -44,7 +44,6 @@ export default function Post({ post, setPauseRefresh }) {
 			!post.videoUrl && <CardMedia className={classes.media} image={post.image} title={post.title} />}
 			{post.videoUrl && (
 				<ReactPlayer
-					className={classes.player}
 					width={660}
 					height={371}
 					url={post.videoUrl}
