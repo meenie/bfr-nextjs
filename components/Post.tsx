@@ -48,7 +48,9 @@ export default function Post({ post, setPauseRefresh }) {
 					height={371}
 					url={post.videoUrl}
 					controls={true}
-					light={post.image}
+					playing
+					light
+					loop
 					onStart={onVideoStart}
 					onPause={onVideoStop}
 					onPlay={onVideoStart}

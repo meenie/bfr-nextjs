@@ -36,7 +36,8 @@ const extractVideoUrl = (post: any) => {
 					return `https://giant.gfycat.com/${url[1]}.webm`;
 				}
 			}
-			case 'streamable.com': {
+			case 'streamable.com':
+			case 'vimeo.com': {
 				return post.url;
 			}
 			case 'imgur.com': {

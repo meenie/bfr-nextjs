@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		postsContainer: {
 			// display: 'flex',
 			// flexDirection: 'column',
-			width: '700px'
+			width: '684px'
 		},
 		filterSelector: {
 			minWidth: 120,
