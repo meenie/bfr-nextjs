@@ -24,7 +24,7 @@ class MyApp extends App {
         </Head>
         <style jsx global>{`
           html {
-            padding-bottom: 201px
+            padding-bottom: 127px
           }
           body, html, #__next {
             height: 100%;
