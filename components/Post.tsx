@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import SanitizedHTML from 'react-sanitized-html';
-import ReactPlayer from 'react-player';
+import RedditMedia from './RedditMedia';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -40,39 +40,7 @@ export default function Post({ post, setPauseRefresh }) {
 
 	return (
 		<Card className={classes.card}>
-			{post.image &&
-			!post.videoUrl &&
-			!post.gifUrl && <CardMedia className={classes.media} image={post.image} title={post.title} />}
-			{post.videoUrl && (
-				<ReactPlayer
-					width={660}
-					height={371}
-					url={post.videoUrl}
-					controls={true}
-					playing
-					light
-					loop
-					onStart={onVideoStart}
-					onPause={onVideoStop}
-					onPlay={onVideoStart}
-					onEnded={onVideoStop}
-				/>
-			)}
-			{post.gifUrl && (
-				<ReactPlayer
-					width={660}
-					height={371}
-					url={post.gifUrl}
-					controls={true}
-					playing
-					light={post.image}
-					loop
-					onStart={onVideoStart}
-					onPause={onVideoStop}
-					onPlay={onVideoStart}
-					onEnded={onVideoStop}
-				/>
-			)}
+			<RedditMedia post={post} onVideoStart={onVideoStart} onVideoStop={onVideoStop} />
 			<CardHeader
 				title={post.title}
 				subheader={`Posted by ${post.author} to r/${post.subreddit}`}

@@ -18,71 +18,7 @@ type Action =
 const REDDIT_URL = 'https://www.reddit.com';
 const SHORT_TIMER = 5e3;
 const LONG_TIMER = 5 * 60e3;
-const IMGUR_REGEX = /imgur\.com\/(.*?)\.gifv?/;
-const GFYCAT_REGEX = /^http(?:s?):\/\/thumbs.gfycat.com\/(.*?)-size_restricted.gif$/;
 
-const extractGifUrl = (post: any) => {
-	let matches;
-	if ((matches = post.url.match(IMGUR_REGEX))) {
-		return `https://i.imgur.com/${matches[1]}.mp4`;
-	}
-
-	if (!post.media) {
-		return null;
-	}
-
-	if (post.media.reddit_video) {
-		if (!post.media.reddit_video.is_gif) {
-			return null;
-		}
-
-		return `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`;
-	} else if (post.media.type) {
-		switch (post.media.type) {
-			case 'gfycat.com': {
-				const url = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
-				if (url) {
-					return `https://giant.gfycat.com/${url[1]}.webm`;
-				}
-			}
-		}
-	} else {
-		return null;
-	}
-};
-const extractVideoUrl = (post: any) => {
-	if (!post.media) {
-		return null;
-	}
-
-	if (post.media.reddit_video) {
-		if (post.media.reddit_video.is_gif) {
-			return null;
-		}
-
-		return `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`;
-	} else if (post.media.type) {
-		switch (post.media.type) {
-			case 'streamable.com':
-			case 'vimeo.com': {
-				return post.url;
-			}
-			case 'imgur.com':
-			case 'gfycat.com': {
-				return null;
-			}
-			default:
-				const matches = post.media.oembed.html
-					.replace(/&lt;/g, '<')
-					.replace(/&gt;/g, '>')
-					.replace(/&amp;/g, '&')
-					.match(/src="(.*?)"/);
-				return matches ? matches[1] : null;
-		}
-	} else {
-		return null;
-	}
-};
 
 const reducer = (state: State, action: Action) => {
 	switch (action.type) {
@@ -101,13 +37,12 @@ const reducer = (state: State, action: Action) => {
 						order: index,
 						title: post.data.title.replace(/&amp;/g, '&'),
 						url,
-						videoUrl: extractVideoUrl(post.data),
-						gifUrl: extractGifUrl(post.data),
 						score: post.data.score,
 						subreddit: post.data.subreddit,
 						author: post.data.author,
 						thumbnail: post.data.thumbnail.slice(0, 4) === 'http' ? post.data.thumbnail : '',
 						image: post.data.preview ? post.data.preview.images[0].source.url.replace(/&amp;/g, '&') : null,
+						media: post.data.media,
 						created: new Date(post.data.created_utc * 1000),
 						commentsUrl: `${REDDIT_URL}${post.data.permalink}`,
 						numComments: post.data.num_comments,
