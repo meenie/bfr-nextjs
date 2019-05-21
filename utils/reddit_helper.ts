@@ -61,7 +61,7 @@ const determineMedium = (post: RawPostData) => {
 };
 
 export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
-	return posts.filter((post: any) => post.subreddit !== 'The_Donald').map((post: any, index: number) => {
+	return posts.filter(post => post.subreddit !== 'The_Donald').map((post, index) => {
 		let url = post.url;
 		if (post.media && post.media.reddit_video && post.media.reddit_video.fallback_url) {
 			url = post.media.reddit_video.fallback_url;

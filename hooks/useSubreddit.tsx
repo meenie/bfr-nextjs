@@ -2,6 +2,7 @@ import { useEffect, useReducer, useState, useCallback, useRef } from 'react';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
 import createPersistedState from 'use-persisted-state';
+import {useAsyncEffect} from 'use-async-effect';
 import axios, { AxiosResponse } from 'axios';
 
 import { normalizeRedditPosts } from '../utils/reddit_helper';
@@ -15,7 +16,7 @@ interface State {
 
 type Action =
 	| { type: 'FETCH_INIT'; payload: boolean }
-	| { type: 'FETCH_SUCCESS'; payload: RawPostData[] }
+	| { type: 'FETCH_SUCCESS'; payload: RedditPost[] }
 	| { type: 'FETCH_FAILURE'; payload: any };
 
 const SHORT_TIMER = 5e3;
@@ -26,8 +27,7 @@ const reducer = (state: State, action: Action) => {
 		case 'FETCH_INIT':
 			return { ...state, isLoading: action.payload };
 		case 'FETCH_SUCCESS':
-			const posts = normalizeRedditPosts(action.payload);
-			return { ...state, posts, isLoading: false };
+			return { ...state, posts: action.payload, isLoading: false };
 		default:
 			return state;
 	}
@@ -46,7 +46,7 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 	const mounted = useRef(true);
 
 	const fetchData = useCallback(
-		() => {
+		async () => {
 			if (pauseRefresh) {
 				return;
 			}
@@ -62,34 +62,25 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 
 			const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
 
-			axios(url)
-				.then((result: AxiosResponse<RawSubreddit>) => {
-					if (mounted.current) {
-						const payload = result.data.data.children
-							.sort((a, b) => {
-								if (filter === 'rising') {
-									return b.data.score - a.data.score;
-								}
-
-								return 0;
-							})
-							.map((post) => post.data);
-
-						dispatch({ type: 'FETCH_SUCCESS', payload });
-					}
-				})
-				.catch((error) => {
-					if (mounted.current) {
-						dispatch({ type: 'FETCH_FAILURE', payload: error });
-					}
-				});
+			try {
+				const result: AxiosResponse<RawSubreddit> = await axios(url);
+				if (! mounted.current) {
+					return
+				}
+				const payload = result.data.data.children.map((post) => post.data);
+				dispatch({ type: 'FETCH_SUCCESS', payload: normalizeRedditPosts(payload) });
+			} catch(e) {
+				if (mounted.current) {
+					dispatch({ type: 'FETCH_FAILURE', payload: e });
+				}
+			}
 		},
 		[ subreddit, filter, pauseRefresh ]
 	);
 
-	// Convience state to check if we are still mounted
+	// Convenience state to check if we are still mounted
 	useEffect(() => () => (mounted.current = false), []);
-	useEffect(fetchData, [ fetchData ]);
+	useAsyncEffect(fetchData, null, [ fetchData ]);
 	useInterval(fetchData, refreshTiming);
 	useEventListener('visibilitychange', () => {
 		setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
