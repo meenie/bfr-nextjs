@@ -1,15 +1,5 @@
 import { useState } from 'react';
-import {
-	Typography,
-	Theme,
-	Card,
-	CardContent,
-	CardActions,
-	Button,
-	CardHeader,
-	Collapse,
-	CardMedia
-} from '@material-ui/core';
+import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Collapse } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import SanitizedHTML from 'react-sanitized-html';
 import RedditMedia from './RedditMedia';
