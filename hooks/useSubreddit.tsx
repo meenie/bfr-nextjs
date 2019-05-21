@@ -2,65 +2,31 @@ import { useEffect, useReducer, useState, useCallback, useRef } from 'react';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
 import createPersistedState from 'use-persisted-state';
+import axios, { AxiosResponse } from 'axios';
 
-import axios from 'axios';
+import { normalizeRedditPosts } from '../utils/reddit_helper';
+import { RawSubreddit, RawPostData } from '../types/RawSubreddit';
+import { RedditPost } from '../types/RedditPost';
 
 interface State {
-	posts: any[];
+	posts: RedditPost[];
 	isLoading: boolean;
 }
 
 type Action =
 	| { type: 'FETCH_INIT'; payload: boolean }
-	| { type: 'FETCH_SUCCESS'; payload: any }
+	| { type: 'FETCH_SUCCESS'; payload: RawPostData[] }
 	| { type: 'FETCH_FAILURE'; payload: any };
 
-const REDDIT_URL = 'https://www.reddit.com';
 const SHORT_TIMER = 5e3;
 const LONG_TIMER = 5 * 60e3;
-
 
 const reducer = (state: State, action: Action) => {
 	switch (action.type) {
 		case 'FETCH_INIT':
 			return { ...state, isLoading: action.payload };
 		case 'FETCH_SUCCESS':
-			const posts = action.payload
-				.filter((post: any) => post.data.subreddit !== 'The_Donald')
-				.map((post: any, index: number) => {
-					let url = post.data.url;
-					if (post.data.media && post.data.media.reddit_video && post.data.media.reddit_video.fallback_url) {
-						url = post.data.media.reddit_video.fallback_url;
-					}
-					return {
-						id: post.data.id,
-						order: index,
-						title: post.data.title.replace(/&amp;/g, '&'),
-						url,
-						score: post.data.score,
-						subreddit: post.data.subreddit,
-						author: post.data.author,
-						thumbnail: post.data.thumbnail.slice(0, 4) === 'http' ? post.data.thumbnail : '',
-						image: post.data.preview ? post.data.preview.images[0].source.url.replace(/&amp;/g, '&') : null,
-						media: post.data.media,
-						created: new Date(post.data.created_utc * 1000),
-						commentsUrl: `${REDDIT_URL}${post.data.permalink}`,
-						numComments: post.data.num_comments,
-						domain: post.data.domain,
-						domainUrl:
-							post.data.domain.slice(0, 5) === 'self.'
-								? `${REDDIT_URL}/r/${post.data.subreddit}`
-								: `${REDDIT_URL}/domain/${post.data.domain}`,
-						selftext: post.data.selftext,
-						selftextHtml: !!post.data.selftext_html
-							? post.data.selftext_html
-									.replace(/&lt;/g, '<')
-									.replace(/&gt;/g, '>')
-									.replace(/↵/g, '\\n')
-									.replace(/&amp;/g, '&')
-							: null
-					};
-				});
+			const posts = normalizeRedditPosts(action.payload);
 			return { ...state, posts, isLoading: false };
 		default:
 			return state;
@@ -97,15 +63,17 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 			const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
 
 			axios(url)
-				.then((result: any) => {
+				.then((result: AxiosResponse<RawSubreddit>) => {
 					if (mounted.current) {
-						const payload = result.data.data.children.sort((a: any, b: any) => {
-							if (filter === 'rising') {
-								return b.data.score - a.data.score;
-							}
+						const payload = result.data.data.children
+							.sort((a, b) => {
+								if (filter === 'rising') {
+									return b.data.score - a.data.score;
+								}
 
-							return 0;
-						});
+								return 0;
+							})
+							.map((post) => post.data);
 
 						dispatch({ type: 'FETCH_SUCCESS', payload });
 					}

@@ -3,6 +3,8 @@ import { CardMedia, Theme } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 import { makeStyles, createStyles } from '@material-ui/styles';
 
+import { RedditPost } from '../types/RedditPost';
+
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		media: {
@@ -43,70 +45,30 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-const IMGUR_REGEX = new RegExp('imgur.com/(.*?).gifv?');
-const GFYCAT_REGEX = new RegExp('^http(?:s?)://thumbs.gfycat.com/(.*?)-size_restricted.gif$');
-const STREAMABLE_REGEX = new RegExp('streamable.com');
-const VIMEO_REGEX = new RegExp('vimeo.com');
-const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
-
-const extractVideoUrl = (post: any) => {
-	if (post.url.match(combineRegex([ STREAMABLE_REGEX, VIMEO_REGEX ]))) {
-		return [ false, post.url ];
-	}
-
-	if (post.media && post.media.reddit_video) {
-		return [ true, `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}` ];
-	} else if (post.media && post.media.type) {
-		switch (post.media.type) {
-			case 'gfycat.com': {
-				const matches: RegExpMatchArray = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
-				if (matches) {
-					return [ true, `https://giant.gfycat.com/${matches[1]}.webm` ];
-				}
-			}
-			default:
-				const matches = post.media.oembed.html
-					.replace(/&lt;/g, '<')
-					.replace(/&gt;/g, '>')
-					.replace(/&amp;/g, '&')
-					.match(/src="(.*?)"/);
-				return matches ? [ false, matches[1] ] : [ false, null ];
-		}
-	} else {
-		const matches: RegExpMatchArray = post.url.match(IMGUR_REGEX);
-		if (matches) {
-			return [ true, `https://i.imgur.com/${matches[1]}.mp4` ];
-		}
-
-		return [ false, null ];
-	}
-};
-
-const determineMedium = (post: any) => {
-	if (post.media) {
-		return 'video';
-	}
-
-	if (post.url.match(combineRegex([ IMGUR_REGEX, STREAMABLE_REGEX, VIMEO_REGEX ]))) {
-		return 'video';
-	}
-
-	if (post.url.match(/\.gif$/)) {
-		return 'gif';
-	}
-
-	return 'image';
-};
-
-export default function RedditMedia({ post, onVideoStart, onVideoStop }) {
-	const medium = determineMedium(post);
-	const [ useCustomImg, videoUrl ] = extractVideoUrl(post);
+export default function RedditMedia({
+	post,
+	onMediaStart,
+	onMediaStop
+}: {
+	post: RedditPost;
+	onMediaStart: any;
+	onMediaStop: any;
+}) {
 	const classes = useStyles({ image: post.image });
 	const [ showGif, setShowGif ] = useState(false);
+	const startGif = () => {
+		setShowGif(true);
+		onMediaStart();
+	};
+
+	const stopGif = () => {
+		setShowGif(false);
+		onMediaStop();
+	};
 
 	return (
 		<Fragment>
-			{medium == 'image' &&
+			{post.medium == 'image' &&
 			post.image && (
 				<CardMedia
 					component="img"
@@ -118,10 +80,10 @@ export default function RedditMedia({ post, onVideoStart, onVideoStop }) {
 			)}
 
 			{!showGif &&
-			medium == 'gif' &&
+			post.medium == 'gif' &&
 			post.url && (
 				<div className={classes.gifPlayContainerContainer}>
-					<div className={classes.gifPreviewContainer} onClick={() => setShowGif(true)}>
+					<div className={classes.gifPreviewContainer} onClick={startGif}>
 						<div className={classes.gifPlayContainer}>
 							<div className={classes.gifPlayIcon} />
 						</div>
@@ -130,7 +92,7 @@ export default function RedditMedia({ post, onVideoStart, onVideoStop }) {
 			)}
 
 			{showGif &&
-			medium == 'gif' &&
+			post.medium == 'gif' &&
 			post.url && (
 				<CardMedia
 					component="img"
@@ -138,24 +100,24 @@ export default function RedditMedia({ post, onVideoStart, onVideoStop }) {
 					className={classes.media}
 					image={post.url}
 					title={post.title}
-					onClick={() => setShowGif(false)}
+					onClick={() => stopGif}
 				/>
 			)}
 
-			{medium == 'video' &&
-			videoUrl && (
+			{post.medium == 'video' &&
+			post.videoUrl && (
 				<ReactPlayer
 					width={660}
 					height={371}
-					url={videoUrl}
+					url={post.videoUrl}
 					controls={true}
 					playing
-					light={useCustomImg ? post.image : true}
+					light={post.useCustomImg ? post.image : true}
 					loop
-					onStart={onVideoStart}
-					onPause={onVideoStop}
-					onPlay={onVideoStart}
-					onEnded={onVideoStop}
+					onStart={onMediaStart}
+					onPause={onMediaStop}
+					onPlay={onMediaStart}
+					onEnded={onMediaStop}
 				/>
 			)}
 		</Fragment>

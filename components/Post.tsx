@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Collapse } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import SanitizedHTML from 'react-sanitized-html';
+
 import RedditMedia from './RedditMedia';
+import { RedditPost } from '../types/RedditPost';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -16,21 +18,21 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-export default function Post({ post, setPauseRefresh }) {
+export default function Post({ post, setPauseRefresh }: { post: RedditPost; setPauseRefresh: any }) {
 	const classes = useStyles();
 	const [ expanded, setExpanded ] = useState(false);
 
-	const onVideoStart = () => {
+	const onMediaStart = () => {
 		setPauseRefresh(true);
 	};
 
-	const onVideoStop = () => {
+	const onMediaStop = () => {
 		setPauseRefresh(false);
 	};
 
 	return (
 		<Card className={classes.card}>
-			<RedditMedia post={post} onVideoStart={onVideoStart} onVideoStop={onVideoStop} />
+			<RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} />
 			<CardHeader
 				title={post.title}
 				subheader={`Posted by ${post.author} to r/${post.subreddit}`}

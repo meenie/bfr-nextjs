@@ -69,7 +69,7 @@ export default function Subreddit({ subreddit, deckId }) {
 				<Box className={classes.postsContainer}>
 					{isLoading && <CircularProgress className={classes.progress} />}
 					{!isLoading &&
-						posts.map((post: any) => <Post key={post.id} post={post} setPauseRefresh={setPauseRefresh} />)}
+						posts.map((post) => <Post key={post.id} post={post} setPauseRefresh={setPauseRefresh} />)}
 				</Box>
 			</Box>
 		</Box>
