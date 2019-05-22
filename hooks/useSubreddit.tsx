@@ -2,11 +2,11 @@ import { useEffect, useReducer, useState, useCallback, useRef } from 'react';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
 import createPersistedState from 'use-persisted-state';
-import {useAsyncEffect} from 'use-async-effect';
+import { useAsyncEffect } from 'use-async-effect';
 import axios, { AxiosResponse } from 'axios';
 
 import { normalizeRedditPosts } from '../utils/reddit_helper';
-import { RawSubreddit, RawPostData } from '../types/RawSubreddit';
+import { RawSubreddit } from '../types/RawSubreddit';
 import { RedditPost } from '../types/RedditPost';
 
 interface State {
@@ -40,15 +40,23 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 		isLoading: false
 	});
 	const [ refreshTiming, setRefreshTiming ] = useState(SHORT_TIMER);
-	const [ pauseRefresh, setPauseRefresh ] = useState(false);
+	const [ isPaused, setIsPaused ] = useState(false);
+	const [ pauseOverride, setPauseOverride ] = createPersistedState(`subreddit-pauseOverride-${deckId}-${subreddit}`)(
+		false
+	);
+	const [ firstLoad, setFirstLoad ] = useState(true);
 	// Used to store current subreddit/filter combo.
 	const combo = useRef<string>();
 	const mounted = useRef(true);
 
 	const fetchData = useCallback(
 		async () => {
-			if (pauseRefresh) {
-				return;
+			if (firstLoad) {
+				setFirstLoad(false);
+			} else {
+				if (isPaused || pauseOverride) {
+					return;
+				}
 			}
 
 			// Only want to show loading if the combo has changed.
@@ -64,18 +72,18 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 
 			try {
 				const result: AxiosResponse<RawSubreddit> = await axios(url);
-				if (! mounted.current) {
-					return
+				if (!mounted.current) {
+					return;
 				}
 				const payload = result.data.data.children.map((post) => post.data);
 				dispatch({ type: 'FETCH_SUCCESS', payload: normalizeRedditPosts(payload) });
-			} catch(e) {
+			} catch (e) {
 				if (mounted.current) {
 					dispatch({ type: 'FETCH_FAILURE', payload: e });
 				}
 			}
 		},
-		[ subreddit, filter, pauseRefresh ]
+		[ subreddit, filter, isPaused, pauseOverride, firstLoad ]
 	);
 
 	// Convenience state to check if we are still mounted
@@ -86,7 +94,7 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
 		setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
 	});
 
-	return { ...state, setFilter, filter, setPauseRefresh };
+	return { ...state, setFilter, filter, isPaused, setIsPaused, pauseOverride, setPauseOverride };
 };
 
 export default useSubreddit;
