@@ -4,5 +4,7 @@
     "javascriptreact",
     { "language": "typescript", "autoFix": true },
     { "language": "typescriptreact", "autoFix": true }
-  ]
+  ],
+  "prettier.useTabs": false,
+  "prettier.tabWidth": 2
 }

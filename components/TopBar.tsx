@@ -2,17 +2,7 @@ import { useState, FormEvent } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import grey from '@material-ui/core/colors/grey';
-import {
-  Typography,
-  Tabs,
-  Tab,
-  TextField,
-  makeStyles,
-  Theme,
-  createStyles,
-  Button,
-  Box
-} from '@material-ui/core';
+import { Typography, Tabs, Tab, TextField, makeStyles, Theme, createStyles, Button, Box } from '@material-ui/core';
 import uuid from 'uuidv4';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -20,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
     textField: {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
-      width: 200,
+      width: 200
     },
     input: {
       color: grey[50]
@@ -42,10 +32,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDeck}) {
+export default function TopBar({ activeDeck, activateDeck, deckIds, decks, addDeck }) {
   const classes = useStyles();
-  const [deckName, setDeckName] = useState('');
-  const [subreddits, setSubreddits] = useState('');
+  const [ deckName, setDeckName ] = useState('');
+  const [ subreddits, setSubreddits ] = useState('');
 
   const add = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,19 +44,21 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
     addDeck({
       id,
       name: deckName,
-      subredditIds: subreddits.split(',').map(s => s.trim()),
+      subredditIds: subreddits.split(',').map((s) => s.trim())
     });
 
     activateDeck(id);
     setDeckName('');
     setSubreddits('');
-  }
+  };
 
   return (
     <AppBar position="fixed">
       <Toolbar>
         <Box>
-          <Typography noWrap variant="h6">Bang! for Reddit</Typography>
+          <Typography noWrap variant="h6">
+            Bang! for Reddit
+          </Typography>
         </Box>
         <Box width="50%">
           <Tabs
@@ -75,12 +67,10 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
             scrollButtons="on"
             onChange={(event, deckId) => activateDeck(deckId)}
           >
-            {deckIds.map((deckId: string) => (
-              <Tab key={deckId} value={deckId} label={decks[deckId].name} />
-            ))}
+            {deckIds.map((deckId: string) => <Tab key={deckId} value={deckId} label={decks[deckId].name} />)}
           </Tabs>
         </Box>
-        <Box flexGrow={1}></Box>
+        <Box flexGrow={1} />
         <Box className={classes.formContainer} borderRadius={5}>
           <form onSubmit={add}>
             <TextField
@@ -95,7 +85,7 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
               }}
               InputLabelProps={{
                 classes: {
-                  root: classes.label,
+                  root: classes.label
                 }
               }}
             />
@@ -111,14 +101,16 @@ export default function TopBar({activeDeck, activateDeck, deckIds, decks, addDec
               }}
               InputLabelProps={{
                 classes: {
-                  root: classes.label,
+                  root: classes.label
                 }
               }}
             />
-            <Button className={classes.submitButton} color="primary" variant="contained" type="submit">Add</Button>
+            <Button className={classes.submitButton} color="primary" variant="contained" type="submit">
+              Add
+            </Button>
           </form>
         </Box>
       </Toolbar>
     </AppBar>
-  )
+  );
 }

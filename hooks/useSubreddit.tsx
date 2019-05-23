@@ -10,91 +10,91 @@ import { RawSubreddit } from '../types/RawSubreddit';
 import { RedditPost } from '../types/RedditPost';
 
 interface State {
-	posts: RedditPost[];
-	isLoading: boolean;
+  posts: RedditPost[];
+  isLoading: boolean;
 }
 
 type Action =
-	| { type: 'FETCH_INIT'; payload: boolean }
-	| { type: 'FETCH_SUCCESS'; payload: RedditPost[] }
-	| { type: 'FETCH_FAILURE'; payload: any };
+  | { type: 'FETCH_INIT'; payload: boolean }
+  | { type: 'FETCH_SUCCESS'; payload: RedditPost[] }
+  | { type: 'FETCH_FAILURE'; payload: any };
 
 const SHORT_TIMER = 5e3;
 const LONG_TIMER = 5 * 60e3;
 
 const reducer = (state: State, action: Action) => {
-	switch (action.type) {
-		case 'FETCH_INIT':
-			return { ...state, isLoading: action.payload };
-		case 'FETCH_SUCCESS':
-			return { ...state, posts: action.payload, isLoading: false };
-		default:
-			return state;
-	}
+  switch (action.type) {
+    case 'FETCH_INIT':
+      return { ...state, isLoading: action.payload };
+    case 'FETCH_SUCCESS':
+      return { ...state, posts: action.payload, isLoading: false };
+    default:
+      return state;
+  }
 };
 
 const useSubreddit = (subreddit: string, deckId: string, initialFilter: string = 'hot') => {
-	const [ filter, setFilter ] = createPersistedState(`subreddit-${deckId}-${subreddit}`)(initialFilter);
-	const [ state, dispatch ] = useReducer(reducer, {
-		posts: [],
-		isLoading: false
-	});
-	const [ refreshTiming, setRefreshTiming ] = useState(SHORT_TIMER);
-	const [ isPaused, setIsPaused ] = useState(false);
-	const [ pauseOverride, setPauseOverride ] = createPersistedState(`subreddit-pauseOverride-${deckId}-${subreddit}`)(
-		false
-	);
-	const [ firstLoad, setFirstLoad ] = useState(true);
-	// Used to store current subreddit/filter combo.
-	const combo = useRef<string>();
-	const mounted = useRef(true);
+  const [ filter, setFilter ] = createPersistedState(`subreddit-${deckId}-${subreddit}`)(initialFilter);
+  const [ state, dispatch ] = useReducer(reducer, {
+    posts: [],
+    isLoading: false
+  });
+  const [ refreshTiming, setRefreshTiming ] = useState(SHORT_TIMER);
+  const [ isPaused, setIsPaused ] = useState(false);
+  const [ pauseOverride, setPauseOverride ] = createPersistedState(`subreddit-pauseOverride-${deckId}-${subreddit}`)(
+    false
+  );
+  const [ firstLoad, setFirstLoad ] = useState(true);
+  // Used to store current subreddit/filter combo.
+  const combo = useRef<string>();
+  const mounted = useRef(true);
 
-	const fetchData = useCallback(
-		async () => {
-			if (firstLoad) {
-				setFirstLoad(false);
-			} else {
-				if (isPaused || pauseOverride) {
-					return;
-				}
-			}
+  const fetchData = useCallback(
+    async () => {
+      if (firstLoad) {
+        setFirstLoad(false);
+      } else {
+        if (isPaused || pauseOverride) {
+          return;
+        }
+      }
 
-			// Only want to show loading if the combo has changed.
-			let shouldShowLoading = combo.current !== subreddit + filter;
+      // Only want to show loading if the combo has changed.
+      let shouldShowLoading = combo.current !== subreddit + filter;
 
-			if (shouldShowLoading) {
-				combo.current = subreddit + filter;
-			}
+      if (shouldShowLoading) {
+        combo.current = subreddit + filter;
+      }
 
-			dispatch({ type: 'FETCH_INIT', payload: shouldShowLoading });
+      dispatch({ type: 'FETCH_INIT', payload: shouldShowLoading });
 
-			const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
+      const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
 
-			try {
-				const result: AxiosResponse<RawSubreddit> = await axios(url);
-				if (!mounted.current) {
-					return;
-				}
-				const payload = result.data.data.children.map((post) => post.data);
-				dispatch({ type: 'FETCH_SUCCESS', payload: normalizeRedditPosts(payload) });
-			} catch (e) {
-				if (mounted.current) {
-					dispatch({ type: 'FETCH_FAILURE', payload: e });
-				}
-			}
-		},
-		[ subreddit, filter, isPaused, pauseOverride, firstLoad ]
-	);
+      try {
+        const result: AxiosResponse<RawSubreddit> = await axios(url);
+        if (!mounted.current) {
+          return;
+        }
+        const payload = result.data.data.children.map((post) => post.data);
+        dispatch({ type: 'FETCH_SUCCESS', payload: normalizeRedditPosts(payload) });
+      } catch (e) {
+        if (mounted.current) {
+          dispatch({ type: 'FETCH_FAILURE', payload: e });
+        }
+      }
+    },
+    [ subreddit, filter, isPaused, pauseOverride, firstLoad ]
+  );
 
-	// Convenience state to check if we are still mounted
-	useEffect(() => () => (mounted.current = false), []);
-	useAsyncEffect(fetchData, null, [ fetchData ]);
-	useInterval(fetchData, refreshTiming);
-	useEventListener('visibilitychange', () => {
-		setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
-	});
+  // Convenience state to check if we are still mounted
+  useEffect(() => () => (mounted.current = false), []);
+  useAsyncEffect(fetchData, null, [ fetchData ]);
+  useInterval(fetchData, refreshTiming);
+  useEventListener('visibilitychange', () => {
+    setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
+  });
 
-	return { ...state, setFilter, filter, isPaused, setIsPaused, pauseOverride, setPauseOverride };
+  return { ...state, setFilter, filter, isPaused, setIsPaused, pauseOverride, setPauseOverride };
 };
 
 export default useSubreddit;

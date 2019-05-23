@@ -8,8 +8,8 @@ const theme = createMuiTheme({
   palette: {
     primary: blue,
     secondary: pink,
-    error: red,
-  },
+    error: red
+  }
 });
 
 export default theme;
