@@ -5,6 +5,7 @@
 	"dependencies": {
 		"@material-ui/core": "next",
 		"@material-ui/icons": "next",
+		"@material-ui/lab": "next",
 		"@material-ui/styles": "next",
 		"@mayankmohit/react-gif-player": "^0.4.2",
 		"@use-it/event-listener": "^0.1.3",

@@ -17,5 +17,13 @@ export interface RedditPost {
 	domain: string;
 	domainUrl: string;
 	selftext: string;
-	selftextHtml: null;
+	selftextHtml: string;
+	awards: Award[];
+}
+
+interface Award {
+	id: string;
+	count: number;
+	name: string;
+	imageUrl: string;
 }

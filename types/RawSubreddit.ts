@@ -74,7 +74,7 @@ export interface RawPostData {
 	banned_by: null;
 	author_flair_type: AuthorFlairType;
 	domain: string;
-	selftext_html: null;
+	selftext_html: string;
 	likes: null;
 	suggested_sort: null | string;
 	banned_at_utc: null;
@@ -82,6 +82,7 @@ export interface RawPostData {
 	archived: boolean;
 	no_follow: boolean;
 	is_crosspostable: boolean;
+	crosspost_parent_list: RawPostData[];
 	pinned: boolean;
 	over_18: boolean;
 	preview: Preview;

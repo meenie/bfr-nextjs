@@ -10,9 +10,13 @@ import {
 	Theme,
 	Typography,
 	FormControlLabel,
-	Switch
+	Switch,
+	Tooltip
 } from '@material-ui/core';
-import { AccessTime, ShowChart, Star, Whatshot } from '@material-ui/icons';
+import { ToggleButtonGroup, ToggleButton } from '@material-ui/lab';
+
+import { AccessTime, ShowChart, Star, Whatshot, ViewHeadline, ViewDay } from '@material-ui/icons';
+import createPersistedState from 'use-persisted-state';
 
 import useSubreddit from '../hooks/useSubreddit';
 import Post from './Post';
@@ -33,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		filterSelector: {
 			minWidth: 120,
-			margin: theme.spacing(0.5, 3, 0, 3)
+			margin: theme.spacing(0, 3, 0, 3)
 		},
 		autoRefreshSwitch: {
 			marginRight: theme.spacing(5)
@@ -51,6 +55,12 @@ const useStyles = makeStyles((theme: Theme) =>
 		menuIcon: {
 			verticalAlign: 'bottom',
 			marginRight: theme.spacing(1)
+		},
+		compactSwitch: {
+			marginRight: theme.spacing(2),
+			'& button': {
+				height: '35px'
+			}
 		}
 	})
 );
@@ -62,10 +72,14 @@ export default function Subreddit({ subreddit, deckId }) {
 	);
 
 	const classes = useStyles();
-
 	const refreshSwitch = (event: ChangeEvent<HTMLInputElement>) => {
 		setPauseOverride(!event.target.checked);
 	};
+	const isCompactSwitch = (event: any, value: boolean) => {
+		setIsCompact(value);
+	};
+
+	const [ isCompact, setIsCompact ] = createPersistedState(`${deckId}-${subreddit}-is-compact`)(false);
 
 	return (
 		<Box className={classes.subredditWrapper}>
@@ -94,6 +108,23 @@ export default function Subreddit({ subreddit, deckId }) {
 						</MenuItem>
 					</Select>
 				</FormControl>
+				<ToggleButtonGroup
+					className={classes.compactSwitch}
+					value={isCompact}
+					exclusive
+					onChange={isCompactSwitch}
+				>
+					<ToggleButton value={true}>
+						<Tooltip title="View posts compacted" aria-label="View posts compacted">
+							<ViewHeadline />
+						</Tooltip>
+					</ToggleButton>,
+					<ToggleButton value={false}>
+						<Tooltip title="View posts expanded" aria-label="View posts expanded">
+							<ViewDay />
+						</Tooltip>
+					</ToggleButton>
+				</ToggleButtonGroup>
 				<FormControlLabel
 					className={classes.autoRefreshSwitch}
 					control={<Switch checked={!pauseOverride} onChange={refreshSwitch} color="primary" />}
@@ -103,7 +134,10 @@ export default function Subreddit({ subreddit, deckId }) {
 			<Box className={classes.postsWrapper}>
 				<Box className={classes.postsContainer}>
 					{isLoading && <CircularProgress className={classes.progress} />}
-					{!isLoading && posts.map((post) => <Post key={post.id} post={post} setIsPaused={setIsPaused} />)}
+					{!isLoading &&
+						posts.map((post) => (
+							<Post key={post.id} post={post} setIsPaused={setIsPaused} isCompact={isCompact} />
+						))}
 				</Box>
 			</Box>
 		</Box>

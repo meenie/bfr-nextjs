@@ -56,7 +56,7 @@ class MyApp extends App {
 				</Head>
 				<style jsx global>{`
 					html {
-						padding-bottom: 127px;
+						padding-bottom: 129px;
 					}
 					body,
 					html,

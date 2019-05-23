@@ -9,6 +9,7 @@ const IMGUR_REGEX = new RegExp('imgur.com/(.*?).gifv?');
 const GFYCAT_REGEX = new RegExp('^http(?:s?)://thumbs.gfycat.com/(.*?)-size_restricted.gif$');
 const STREAMABLE_REGEX = new RegExp('streamable.com');
 const VIMEO_REGEX = new RegExp('vimeo.com');
+const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
 const REDDIT_URL = 'https://www.reddit.com';
 
 const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
@@ -17,9 +18,19 @@ const extractVideoUrl = (post: RawPostData): [boolean, string] => {
 		return [ false, post.url ];
 	}
 
-	if (post.media && post.media.reddit_video) {
-		return [ true, `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}` ];
-	} else if (post.media && post.media.type) {
+	if (post.url.match(REDDIT_VIDEO_REGEX)) {
+		if (post.media && post.media.reddit_video) {
+			return [ true, `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}` ];
+		}
+
+		if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
+			const firstCrosspost = post.crosspost_parent_list[0];
+			console.log(`https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}`);
+			return [ true, `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}` ];
+		}
+	}
+
+	if (post.media && post.media.type) {
 		switch (post.media.type) {
 			case 'gfycat.com': {
 				const matches: RegExpMatchArray = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
@@ -49,7 +60,7 @@ const determineMedium = (post: RawPostData) => {
 		return 'video';
 	}
 
-	if (post.url.match(combineRegex([ IMGUR_REGEX, STREAMABLE_REGEX, VIMEO_REGEX ]))) {
+	if (post.url.match(combineRegex([ IMGUR_REGEX, STREAMABLE_REGEX, VIMEO_REGEX, REDDIT_VIDEO_REGEX ]))) {
 		return 'video';
 	}
 
@@ -61,7 +72,7 @@ const determineMedium = (post: RawPostData) => {
 };
 
 export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
-	return posts.filter(post => post.subreddit !== 'The_Donald').map((post, index) => {
+	return posts.filter((post) => post.subreddit !== 'The_Donald').map((post, index) => {
 		let url = post.url;
 		if (post.media && post.media.reddit_video && post.media.reddit_video.fallback_url) {
 			url = post.media.reddit_video.fallback_url;
@@ -86,6 +97,14 @@ export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
 			commentsUrl: `${REDDIT_URL}${post.permalink}`,
 			numComments: post.num_comments,
 			domain: post.domain,
+			awards: post.all_awardings.map((award) => {
+				return {
+					id: award.id,
+					count: award.count,
+					name: award.name,
+					imageUrl: award.icon_url
+				};
+			}),
 			domainUrl:
 				post.domain.slice(0, 5) === 'self.'
 					? `${REDDIT_URL}/r/${post.subreddit}`
