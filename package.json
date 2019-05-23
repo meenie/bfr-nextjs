@@ -28,7 +28,8 @@
 	"scripts": {
 		"dev": "next",
 		"build": "next build",
-		"start": "next start"
+		"start": "next start",
+		"now-build": "next build"
 	},
 	"devDependencies": {
 		"@types/next": "latest",

@@ -1,0 +1,12 @@
+{
+	"version": 2,
+	"name": "bfr-nextjs",
+	"builds": [ { "src": "next.config.js", "use": "@now/next" } ],
+	"routes": [
+		{
+			"src": "/_next/static/(?:[^/]+/pages|chunks|runtime)/.+",
+			"headers": { "cache-control": "immutable,max-age=31536000" }
+		}
+	],
+	"alias": [ "next.bangforreddit.com" ]
+}
