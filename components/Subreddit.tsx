@@ -30,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     postsWrapper: {
       height: '100%',
-      overflowY: 'scroll'
+      overflowY: 'scroll',
+      '-webkit-overflow-scrolling': 'touch'
     },
     postsContainer: {
       width: '684px'
