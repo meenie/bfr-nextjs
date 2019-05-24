@@ -9,8 +9,7 @@ import {
   CardHeader,
   Collapse,
   Box,
-  Avatar,
-  IconButton
+  Fade
 } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
@@ -79,6 +78,16 @@ const useStyles = makeStyles((theme: Theme) =>
       } else {
         return {};
       }
+    },
+    selfPostContent: {
+      position: 'relative'
+    },
+    selfTextFade: {
+      position: 'absolute',
+      bottom: '46px',
+      height: '55px',
+      width: '100%',
+      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0) 0, #ffffff 100%);'
     }
   })
 );
@@ -154,8 +163,11 @@ export default function Post({
 
       {!isCompact &&
       post.selftextHtml && (
-        <CardContent>
-          <Collapse in={expanded} collapsedHeight={'75px'}>
+        <CardContent className={classes.selfPostContent}>
+          <Fade in={!expanded}>
+            <Box className={classes.selfTextFade} />
+          </Fade>
+          <Collapse in={expanded} collapsedHeight={'55px'}>
             <SanitizedHTML html={post.selftextHtml} />
           </Collapse>
           <Button size="small" onClick={() => setExpanded(!expanded)}>
