@@ -1,13 +1,6 @@
-# Next.js v4-alpha with TypeScript example
+# Next.js BangForReddit.com
 
 ## How to use
-
-Download the example [or clone the repo](https://github.com/mui-org/material-ui):
-
-```sh
-curl https://codeload.github.com/mui-org/material-ui/tar.gz/next | tar -xz --strip=2  material-ui-next/examples/nextjs-next-with-typescript
-cd nextjs-next-with-typescript
-```
 
 Install it and run:
 
@@ -16,14 +9,8 @@ npm install
 npm run dev
 ```
 
-or
-
-```sh
-yarn
-yarn dev
-```
-
-## The idea behind the example
+## Built With
 
 [Next.js](https://github.com/zeit/next.js) is a framework for server-rendered React apps.
-[Hooks](https://reactjs.org/docs/hooks-state.html) are an upcoming feature of React.
+[React Hooks](https://reactjs.org/docs/hooks-intro.html) are a cool new feature of React 16.8
+[Material-UI](https://material-ui.com) is a component library for Material Design
