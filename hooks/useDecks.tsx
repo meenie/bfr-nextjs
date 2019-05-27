@@ -20,7 +20,7 @@ type Actions =
   | { type: 'REMOVE_DECK'; payload: string }
   | { type: 'SET_CURRENT_DECK'; payload: string }
   | { type: 'ADD_SUBREDDIT'; payload: string }
-  | { type: 'REMOVE_SUBREDDIT'; payload: string }
+  | { type: 'REMOVE_SUBREDDIT'; payload: { deckId: string; subreddit: string } }
   | { type: 'SET_STATE'; payload: State };
 
 const useStateLocalStorage = createPersistedState('bfr-decks');
@@ -43,7 +43,8 @@ const reducer = (state: State, action: Actions) => {
       if (state.deckIds.length === 1 && action.payload === state.deckIds[0]) {
         return state;
       }
-      let newState = { ...state };
+
+      const newState = Object.assign({}, state);
       delete newState.decks[action.payload];
       newState.deckIds = newState.deckIds.filter((id) => id !== action.payload);
       // If the deck you are deleting is the one that is active,
@@ -51,11 +52,20 @@ const reducer = (state: State, action: Actions) => {
       if (action.payload === newState.currentDeckId) {
         newState.currentDeckId = newState.deckIds[0];
       }
+
       return newState;
     case 'SET_CURRENT_DECK':
       return { ...state, currentDeckId: action.payload };
     case 'SET_STATE':
       return action.payload;
+    case 'REMOVE_SUBREDDIT':
+      const deck = Object.assign({}, state.decks[action.payload.deckId]);
+      deck.subredditIds = deck.subredditIds.filter((id) => id !== action.payload.subreddit);
+
+      return {
+        ...state,
+        decks: { ...state.decks, [action.payload.deckId]: deck }
+      };
     default:
       return state;
   }
@@ -74,6 +84,9 @@ const useDecks = (initialState: State) => {
   const activateDeck = (deckId: string) => {
     dispatcher({ type: 'SET_CURRENT_DECK', payload: deckId });
   };
+  const removeSubreddit = (payload: { deckId: string; subreddit: string }) => {
+    dispatcher({ type: 'REMOVE_SUBREDDIT', payload });
+  };
 
   // Any change to the state, set it to local storage
   useEffect(
@@ -91,7 +104,7 @@ const useDecks = (initialState: State) => {
     [ localStorageState ]
   );
 
-  return { ...state, activeDeck, addDeck, removeDeck, activateDeck };
+  return { ...state, activeDeck, addDeck, removeDeck, removeSubreddit, activateDeck };
 };
 
 export default useDecks;

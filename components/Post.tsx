@@ -153,7 +153,9 @@ export default function Post({
         avatar={
           isCompact &&
           (post.thumbnail ? (
-            <img alt={post.title} title={post.title} className={classes.thumbnail} src={post.thumbnail} width={40} />
+            <a href={post.url} rel="noopener noreferrer" target="_blank">
+              <img alt={post.title} title={post.title} className={classes.thumbnail} src={post.thumbnail} width={40} />
+            </a>
           ) : (
             <span>&nbsp;</span>
           ))

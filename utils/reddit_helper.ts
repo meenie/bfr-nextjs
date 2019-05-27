@@ -25,7 +25,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string] => {
 
     if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
       const firstCrosspost = post.crosspost_parent_list[0];
-      console.log(`https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}`);
+
       return [ true, `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}` ];
     }
   }

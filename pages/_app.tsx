@@ -55,13 +55,17 @@ class MyApp extends App {
           <title>Bang! for Reddit</title>
         </Head>
         <style jsx global>{`
-          html {
-            padding-bottom: 129px;
-          }
           body,
           html,
           #__next {
             height: 100%;
+          }
+          html {
+            padding-bottom: 129px;
+            overflow-x: scroll;
+          }
+          body {
+            overflow: unset !important;
           }
           .gif_player {
             width: 100%;

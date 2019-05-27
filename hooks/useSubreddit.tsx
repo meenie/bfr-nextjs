@@ -44,15 +44,15 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
   const [ pauseOverride, setPauseOverride ] = createPersistedState(`subreddit-pauseOverride-${deckId}-${subreddit}`)(
     false
   );
-  const [ firstLoad, setFirstLoad ] = useState(true);
+  const firstLoad = useRef(true);
   // Used to store current subreddit/filter combo.
   const combo = useRef<string>();
   const mounted = useRef(true);
 
   const fetchData = useCallback(
     async () => {
-      if (firstLoad) {
-        setFirstLoad(false);
+      if (firstLoad.current) {
+        firstLoad.current = false;
       } else {
         if (isPaused || pauseOverride) {
           return;
@@ -83,13 +83,16 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
         }
       }
     },
-    [ subreddit, filter, isPaused, pauseOverride, firstLoad ]
+    [ subreddit, filter, isPaused, pauseOverride ]
   );
 
   // Convenience state to check if we are still mounted
   useEffect(() => () => (mounted.current = false), []);
+  // Load the initial posts and any time the callback function changes
   useAsyncEffect(fetchData, null, [ fetchData ]);
+  // Set up auto-reload interval
   useInterval(fetchData, refreshTiming);
+  // If the visibility of the tab is hidden, then use a long timer to not waste bandwidth
   useEventListener('visibilitychange', () => {
     setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
   });
