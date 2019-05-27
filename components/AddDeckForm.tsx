@@ -14,6 +14,8 @@ import {
   createStyles,
   Zoom
 } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { Add } from '@material-ui/icons';
 
@@ -22,15 +24,18 @@ const useStyles = makeStyles((theme: Theme) =>
     openAddForm: {
       position: 'fixed',
       bottom: theme.spacing(2),
-      right: theme.spacing(2)
+      right: theme.spacing(2),
+      zIndex: 2
     }
   })
 );
 
 export default function AddDeck({ addDeck, activateDeck }) {
+  const theme = useTheme();
   const [ addFormOpen, setAddFormOpen ] = useState(false);
   const [ deckName, setDeckName ] = useState('');
   const [ deckSubreddits, setDeckSubreddits ] = useState('');
+  const fullScreenAddDeck = useMediaQuery(theme.breakpoints.down('sm'));
   const classes = useStyles();
 
   const handleCloseAddForm = () => {
@@ -59,12 +64,17 @@ export default function AddDeck({ addDeck, activateDeck }) {
         </Fab>
       </Zoom>
 
-      <Dialog open={addFormOpen} onClose={handleCloseAddForm} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={addFormOpen}
+        onClose={handleCloseAddForm}
+        aria-labelledby="form-dialog-title"
+        fullScreen={fullScreenAddDeck}
+      >
         <DialogTitle id="form-dialog-title">Add Deck</DialogTitle>
         <DialogContent>
           <DialogContentText>
             To add a new deck enter in a name and comma delimited list of Subreddits that you'd like to see. You can
-            also combine Subreddits by using the "+" notation. For example: nba+warriors, baseball+SFGiants
+            also combine Subreddits by using the "+" notation. For example: nba+warriors, baseball+SFGiants.
           </DialogContentText>
           <TextField
             autoFocus
@@ -78,7 +88,7 @@ export default function AddDeck({ addDeck, activateDeck }) {
             onChange={(event) => setDeckSubreddits(event.target.value)}
             value={deckSubreddits}
             margin="dense"
-            label="Subreddits (Comma seperated list. i.e. funny, gifs, videos, tihi)"
+            label="Subreddits (i.e. funny, gifs, videos)"
             fullWidth
           />
         </DialogContent>

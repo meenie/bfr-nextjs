@@ -11,7 +11,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     gridItem: {
       flex: '0 0 100%',
-      minWidth: '470px',
       [theme.breakpoints.down('sm')]: {
         flex: '0 0 100%'
       },
