@@ -26,10 +26,6 @@ const useStyles = makeStyles((theme: Theme) =>
     card: {
       margin: theme.spacing(1.5)
     },
-    media: {
-      paddingTop: '56.25%',
-      backgroundPosition: '0% 15%'
-    },
     headerText: {
       marginBottom: theme.spacing(2)
     },

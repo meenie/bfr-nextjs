@@ -10,7 +10,14 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(10)
     },
     gridItem: {
-      flex: '0 0 35%'
+      flex: '0 0 100%',
+      minWidth: '470px',
+      [theme.breakpoints.down('sm')]: {
+        flex: '0 0 100%'
+      },
+      [theme.breakpoints.up('md')]: {
+        flex: '0 0 45%'
+      }
     }
   })
 );

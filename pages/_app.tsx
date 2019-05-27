@@ -61,7 +61,7 @@ class MyApp extends App {
             height: 100%;
           }
           html {
-            padding-bottom: 129px;
+            padding-bottom: 136px;
             overflow-x: scroll;
           }
           body {

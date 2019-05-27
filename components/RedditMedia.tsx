@@ -13,7 +13,6 @@ const useStyles = makeStyles((theme: Theme) =>
       maxWidth: '660px',
       display: 'block',
       margin: '0 auto',
-      width: 'auto',
       objectFit: 'contain'
     }
   })
@@ -49,8 +48,7 @@ export default function RedditMedia({
       {post.medium == 'video' &&
       post.videoUrl && (
         <ReactPlayer
-          width={660}
-          height={371}
+          width={'100%'}
           url={post.videoUrl}
           controls={true}
           playing
