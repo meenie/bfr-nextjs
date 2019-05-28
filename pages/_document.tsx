@@ -16,6 +16,8 @@ class MyDocument extends Document {
           <meta name="theme-color" content={theme.palette.primary.main} />
           <link rel="manifest" href="/static/manifest.json" />
           <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/static/images/reddit-logo.png" />
+          <link rel="apple-touch-startup-image" href="/static/images/reddit-logo.png" />
           <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
           <link rel="stylesheet" href="https://unpkg.com/react-gif-player@0.4.2/dist/gifplayer.css" />
         </Head>
