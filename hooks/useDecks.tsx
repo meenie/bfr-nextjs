@@ -1,5 +1,6 @@
 import { useReducer, useEffect } from 'react';
 import createPersistedState from 'use-persisted-state';
+import { produce } from 'immer';
 
 export interface Deck {
   id: string;
@@ -25,7 +26,7 @@ type Actions =
 
 const useStateLocalStorage = createPersistedState('bfr-decks');
 
-const reducer = (state: State, action: Actions) => {
+const reducer = produce((state: State, action: Actions) => {
   switch (action.type) {
     case 'ADD_DECK':
       // Can't add a deck with the same id;
@@ -33,43 +34,38 @@ const reducer = (state: State, action: Actions) => {
         return state;
       }
 
-      return {
-        ...state,
-        deckIds: state.deckIds.concat([ action.payload.id ]),
-        decks: { ...state.decks, [action.payload.id]: action.payload }
-      };
+      state.deckIds.push(action.payload.id);
+      state.decks[action.payload.id] = action.payload;
+
+      return state;
     case 'REMOVE_DECK':
       // Not allowed to delete the last deck in the list.
       if (state.deckIds.length === 1 && action.payload === state.deckIds[0]) {
         return state;
       }
 
-      const newState = Object.assign({}, state);
-      delete newState.decks[action.payload];
-      newState.deckIds = newState.deckIds.filter((id) => id !== action.payload);
-      // If the deck you are deleting is the one that is active,
-      // set the current deck to the first one in the list.
-      if (action.payload === newState.currentDeckId) {
-        newState.currentDeckId = newState.deckIds[0];
+      delete state.decks[action.payload];
+      state.deckIds = state.deckIds.filter((id) => id !== action.payload);
+
+      if (action.payload === state.currentDeckId) {
+        state.currentDeckId = state.deckIds[0];
       }
 
-      return newState;
+      return state;
     case 'SET_CURRENT_DECK':
-      return { ...state, currentDeckId: action.payload };
+      state.currentDeckId = action.payload;
+
+      return state;
     case 'SET_STATE':
       return action.payload;
     case 'REMOVE_SUBREDDIT':
-      const deck = Object.assign({}, state.decks[action.payload.deckId]);
+      const deck = state.decks[action.payload.deckId];
       deck.subredditIds = deck.subredditIds.filter((id) => id !== action.payload.subreddit);
+      state.decks[action.payload.deckId] = deck;
 
-      return {
-        ...state,
-        decks: { ...state.decks, [action.payload.deckId]: deck }
-      };
-    default:
       return state;
   }
-};
+});
 
 const useDecks = (initialState: State) => {
   const [ localStorageState, setLocalStorageState ] = useStateLocalStorage(initialState);

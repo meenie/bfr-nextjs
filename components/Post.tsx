@@ -1,25 +1,14 @@
-import { useState, Fragment } from 'react';
-import {
-  Typography,
-  Theme,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  CardHeader,
-  Collapse,
-  Box,
-  Fade
-} from '@material-ui/core';
+import { Fragment, memo } from 'react';
+import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
-import SanitizedHTML from 'react-sanitized-html';
 import TimeAgo from 'react-timeago';
 import NumberFormat from 'react-number-format';
 import abbreviate from 'number-abbreviate';
 
 import RedditMedia from './RedditMedia';
 import { RedditPost } from '../types/RedditPost';
+import SelfTextHtml from './SelfTextHtml';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -74,31 +63,12 @@ const useStyles = makeStyles((theme: Theme) =>
       } else {
         return {};
       }
-    },
-    selfPostContent: {
-      position: 'relative'
-    },
-    selfTextFade: {
-      position: 'absolute',
-      bottom: '46px',
-      height: '55px',
-      width: '100%',
-      background: 'linear-gradient(180deg, rgba(255, 255, 255, 0) 0, #ffffff 100%);'
     }
   })
 );
 
-export default function Post({
-  post,
-  setIsPaused,
-  isCompact
-}: {
-  post: RedditPost;
-  setIsPaused: any;
-  isCompact: boolean;
-}) {
+function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused: any; isCompact: boolean }) {
   const classes = useStyles({ isCompact });
-  const [ expanded, setExpanded ] = useState(false);
 
   const onMediaStart = () => {
     setIsPaused(true);
@@ -157,20 +127,16 @@ export default function Post({
           ))
         }
       />
-      {!isCompact && <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} />}
 
-      {!isCompact &&
-      post.selftextHtml && (
-        <CardContent className={classes.selfPostContent}>
-          <Fade in={!expanded}>
-            <Box className={classes.selfTextFade} />
-          </Fade>
-          <Collapse in={expanded} collapsedHeight={'55px'}>
-            <SanitizedHTML html={post.selftextHtml} />
-          </Collapse>
-          <Button size="small" onClick={() => setExpanded(!expanded)}>
-            View {expanded ? 'Less' : 'More'}
-          </Button>
+      {!isCompact && (
+        <CardContent>
+          <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} />
+        </CardContent>
+      )}
+
+      {!isCompact && (
+        <CardContent>
+          <SelfTextHtml selfTextHtml={post.selftextHtml} />
         </CardContent>
       )}
 
@@ -202,6 +168,7 @@ export default function Post({
           <TimeAgo fontSize="small" date={post.created} />
         </Typography>
       </CardContent>
+
       {!isCompact && (
         <CardActions>
           <Button size="small" href={post.url} rel="noopener noreferrer" target="_blank">
@@ -215,3 +182,5 @@ export default function Post({
     </Card>
   );
 }
+
+export default memo(Post);

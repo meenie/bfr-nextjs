@@ -4,6 +4,7 @@ import useEventListener from '@use-it/event-listener';
 import createPersistedState from 'use-persisted-state';
 import { useAsyncEffect } from 'use-async-effect';
 import axios, { AxiosResponse } from 'axios';
+import { produce } from 'immer';
 
 import { normalizeRedditPosts } from '../utils/reddit_helper';
 import { RawSubreddit } from '../types/RawSubreddit';
@@ -22,16 +23,19 @@ type Action =
 const SHORT_TIMER = 5e3;
 const LONG_TIMER = 5 * 60e3;
 
-const reducer = (state: State, action: Action) => {
+const reducer = produce((state: State, action: Action) => {
   switch (action.type) {
     case 'FETCH_INIT':
-      return { ...state, isLoading: action.payload };
+      state.isLoading = action.payload;
+
+      return state;
     case 'FETCH_SUCCESS':
-      return { ...state, posts: action.payload, isLoading: false };
-    default:
+      state.posts = action.payload;
+      state.isLoading = false;
+
       return state;
   }
-};
+});
 
 const useSubreddit = (subreddit: string, deckId: string, initialFilter: string = 'hot') => {
   const [ filter, setFilter ] = createPersistedState(`subreddit-${deckId}-${subreddit}`)(initialFilter);
