@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Subreddit({ subreddit, deckId, removeSubreddit }) {
+function Subreddit({ subreddit, deckId, removeSubreddit, usingApollo }) {
   const classes = useStyles();
   const { posts, isLoading, setFilter, filter, setIsPaused, pauseOverride, setPauseOverride } = useSubreddit(
     subreddit,
@@ -66,7 +66,9 @@ function Subreddit({ subreddit, deckId, removeSubreddit }) {
       <Box className={classes.postsWrapper}>
         {isLoading && <CircularProgress className={classes.progress} />}
         {!isLoading &&
-          posts.map((post) => <Post key={post.id} post={post} setIsPaused={setIsPaused} isCompact={isCompact} />)}
+          posts.map((post) => (
+            <Post key={post.id} post={post} setIsPaused={setIsPaused} isCompact={isCompact} usingApollo={usingApollo} />
+          ))}
       </Box>
     </Box>
   );

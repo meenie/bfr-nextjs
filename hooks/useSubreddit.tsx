@@ -62,7 +62,6 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
         currentFilter.current = filter;
       }
 
-      console.log({ firstLoad: firstLoad.current, isPaused, pauseOverride, filterChanged });
       if (firstLoad.current) {
         firstLoad.current = false;
       } else {

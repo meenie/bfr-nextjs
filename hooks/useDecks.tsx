@@ -10,6 +10,7 @@ export interface Deck {
 
 export interface State {
   currentDeckId: string;
+  usingApollo: boolean;
   deckIds: string[];
   decks: {
     [id: string]: Deck;
@@ -20,6 +21,7 @@ type Actions =
   | { type: 'ADD_DECK'; payload: Deck }
   | { type: 'REMOVE_DECK'; payload: string }
   | { type: 'SET_CURRENT_DECK'; payload: string }
+  | { type: 'SET_USING_APOLLO'; payload: boolean }
   | { type: 'ADD_SUBREDDIT'; payload: string }
   | { type: 'REMOVE_SUBREDDIT'; payload: { deckId: string; subreddit: string } }
   | { type: 'SET_STATE'; payload: State };
@@ -56,6 +58,10 @@ const reducer = produce((state: State, action: Actions) => {
       state.currentDeckId = action.payload;
 
       return state;
+    case 'SET_USING_APOLLO':
+      state.usingApollo = action.payload;
+
+      return state;
     case 'SET_STATE':
       return action.payload;
     case 'REMOVE_SUBREDDIT':
@@ -83,6 +89,9 @@ const useDecks = (initialState: State) => {
   const removeSubreddit = (payload: { deckId: string; subreddit: string }) => {
     dispatcher({ type: 'REMOVE_SUBREDDIT', payload });
   };
+  const setUsingApollo = (payload: boolean) => {
+    dispatcher({ type: 'SET_USING_APOLLO', payload });
+  };
 
   // Any change to the state, set it to local storage
   useEffect(
@@ -100,7 +109,7 @@ const useDecks = (initialState: State) => {
     [ localStorageState ]
   );
 
-  return { ...state, activeDeck, addDeck, removeDeck, removeSubreddit, activateDeck };
+  return { ...state, activeDeck, addDeck, removeDeck, removeSubreddit, activateDeck, setUsingApollo };
 };
 
 export default useDecks;

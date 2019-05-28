@@ -20,7 +20,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     header: ({ isCompact }) => {
       return {
-        flexDirection: isCompact ? 'row-reverse' : 'inherit'
+        flexDirection: isCompact ? 'row-reverse' : 'inherit',
+        alignItems: 'flex-start'
       };
     },
     bottomIcons: {
@@ -31,6 +32,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: theme.spacing(1.25)
     },
     award: {
+      whiteSpace: 'nowrap',
       marginLeft: theme.spacing(1),
       '& img': {
         verticalAlign: 'text-bottom'
@@ -67,7 +69,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused: any; isCompact: boolean }) {
+function Post({
+  post,
+  setIsPaused,
+  isCompact,
+  usingApollo
+}: {
+  post: RedditPost;
+  setIsPaused: any;
+  isCompact: boolean;
+  usingApollo: boolean;
+}) {
   const classes = useStyles({ isCompact });
 
   const onMediaStart = () => {
@@ -78,10 +90,11 @@ function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused:
     setIsPaused(false);
   };
 
+  const protocol = usingApollo ? 'apollo://' : 'https://';
+
   return (
     <Card className={classes.card}>
       <CardHeader
-        className={classes.header}
         title={
           <Fragment>
             <span title={`Score: ${post.score}`}>{abbreviate(post.score, 2)}</span>&nbsp;&mdash;&nbsp;
@@ -93,11 +106,11 @@ function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused:
         subheader={
           <Fragment>
             <span>Posted by: </span>
-            <a href={'https://reddit.com/u/' + post.author} rel="noopener noreferrer" target="_blank">
+            <a href={`${protocol}reddit.com/u/${post.author}`} rel="noopener noreferrer" target="_blank">
               {post.author}
             </a>
             <span> to </span>
-            <a href={'https://reddit.com/r/' + post.subreddit} rel="noopener noreferrer" target="_blank">
+            <a href={`${protocol}reddit.com/r/${post.subreddit}`} rel="noopener noreferrer" target="_blank">
               r/{post.subreddit}
             </a>
             {post.awards.map((award) => {
@@ -114,6 +127,7 @@ function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused:
           variant: 'body2'
         }}
         classes={{
+          root: classes.header,
           title: classes.headerText
         }}
         avatar={
@@ -150,7 +164,7 @@ function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused:
             value={post.score}
           />
           <a
-            href={post.commentsUrl}
+            href={protocol + post.commentsUrl}
             className={classes.commentsLink}
             title="Reddit Comments"
             rel="noopener noreferrer"
@@ -174,7 +188,7 @@ function Post({ post, setIsPaused, isCompact }: { post: RedditPost; setIsPaused:
           <Button size="small" href={post.url} rel="noopener noreferrer" target="_blank">
             View Link
           </Button>
-          <Button size="small" href={post.commentsUrl} rel="noopener noreferrer" target="_blank">
+          <Button size="small" href={protocol + post.commentsUrl} rel="noopener noreferrer" target="_blank">
             View Comments
           </Button>
         </CardActions>

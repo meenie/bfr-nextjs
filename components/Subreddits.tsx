@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Subreddits({ activeDeck, removeSubreddit }) {
+function Subreddits({ activeDeck, removeSubreddit, usingApollo }) {
   const subredditCount = activeDeck.subredditIds.length;
   const classes = useStyles({ subredditCount });
 
@@ -30,7 +30,12 @@ function Subreddits({ activeDeck, removeSubreddit }) {
     <Grid container className={classes.grid} wrap="nowrap">
       {activeDeck.subredditIds.map((subredditId: string) => (
         <Grid item key={subredditId + activeDeck.id} className={classes.gridItem}>
-          <Subreddit removeSubreddit={removeSubreddit} subreddit={subredditId} deckId={activeDeck.id} />
+          <Subreddit
+            removeSubreddit={removeSubreddit}
+            subreddit={subredditId}
+            deckId={activeDeck.id}
+            usingApollo={usingApollo}
+          />
         </Grid>
       ))}
     </Grid>

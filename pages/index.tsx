@@ -8,6 +8,7 @@ import AddDeckForm from '../components/AddDeckForm';
 const initialState: DecksState = {
   currentDeckId: 'default',
   deckIds: [ 'default' ],
+  usingApollo: false,
   decks: {
     default: {
       id: 'default',
@@ -18,13 +19,31 @@ const initialState: DecksState = {
 };
 
 export default function App() {
-  const { activeDeck, decks, deckIds, addDeck, removeDeck, removeSubreddit, activateDeck } = useDecks(initialState);
+  const {
+    activeDeck,
+    decks,
+    deckIds,
+    addDeck,
+    removeDeck,
+    removeSubreddit,
+    activateDeck,
+    setUsingApollo,
+    usingApollo
+  } = useDecks(initialState);
 
   return (
     <NoSsr>
-      <TopBar activateDeck={activateDeck} decks={decks} deckIds={deckIds} activeDeck={activeDeck} />
+      <TopBar
+        activateDeck={activateDeck}
+        decks={decks}
+        deckIds={deckIds}
+        activeDeck={activeDeck}
+        setUsingApollo={setUsingApollo}
+        usingApollo={usingApollo}
+        removeDeck={removeDeck}
+      />
       <AddDeckForm addDeck={addDeck} activateDeck={activateDeck} />
-      <Subreddits activeDeck={activeDeck} removeSubreddit={removeSubreddit} />
+      <Subreddits activeDeck={activeDeck} removeSubreddit={removeSubreddit} usingApollo={usingApollo} />
     </NoSsr>
   );
 }

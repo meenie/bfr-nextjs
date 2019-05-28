@@ -10,7 +10,7 @@ const GFYCAT_REGEX = new RegExp('^http(?:s?)://thumbs.gfycat.com/(.*?)-size_rest
 const STREAMABLE_REGEX = new RegExp('streamable.com');
 const VIMEO_REGEX = new RegExp('vimeo.com');
 const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
-const REDDIT_URL = 'https://www.reddit.com';
+const REDDIT_URL = 'www.reddit.com';
 
 const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
 const extractVideoUrl = (post: RawPostData): [boolean, string] => {
