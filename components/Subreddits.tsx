@@ -1,5 +1,6 @@
+import { memo } from 'react';
 import { Theme, Grid } from '@material-ui/core';
-import { createStyles, makeStyles, CSSProperties } from '@material-ui/styles';
+import { createStyles, makeStyles } from '@material-ui/styles';
 
 import Subreddit from '../components/Subreddit';
 
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function Subreddits({ activeDeck, removeSubreddit }) {
+function Subreddits({ activeDeck, removeSubreddit }) {
   const subredditCount = activeDeck.subredditIds.length;
   const classes = useStyles({ subredditCount });
 
@@ -35,3 +36,5 @@ export default function Subreddits({ activeDeck, removeSubreddit }) {
     </Grid>
   );
 }
+
+export default memo(Subreddits);

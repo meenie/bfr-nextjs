@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, memo } from 'react';
 import { CardMedia, Theme } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 import { makeStyles, createStyles } from '@material-ui/styles';
@@ -18,15 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function RedditMedia({
-  post,
-  onMediaStart,
-  onMediaStop
-}: {
-  post: RedditPost;
-  onMediaStart: any;
-  onMediaStop: any;
-}) {
+function RedditMedia({ post, onMediaStart, onMediaStop }: { post: RedditPost; onMediaStart: any; onMediaStop: any }) {
   const classes = useStyles({ image: post.image });
   const toggleGif = (playing) => {
     if (playing) {
@@ -63,3 +55,5 @@ export default function RedditMedia({
     </Fragment>
   );
 }
+
+export default memo(RedditMedia);

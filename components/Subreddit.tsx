@@ -44,7 +44,6 @@ function Subreddit({ subreddit, deckId, removeSubreddit }) {
   );
   const [ isCompact, setIsCompact ] = createPersistedState(`${deckId}-${subreddit}-is-compact`)(false);
 
-  console.log('hmmmm');
   return (
     <Box className={classes.subredditWrapper}>
       <Box className={classes.subredditControls}>

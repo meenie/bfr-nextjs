@@ -1,8 +1,9 @@
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Typography, Tabs, Tab, Box } from '@material-ui/core';
+import { memo } from 'react';
 
-export default function TopBar({ activeDeck, activateDeck, deckIds, decks }) {
+function TopBar({ activeDeck, activateDeck, deckIds, decks }) {
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -25,3 +26,5 @@ export default function TopBar({ activeDeck, activateDeck, deckIds, decks }) {
     </AppBar>
   );
 }
+
+export default memo(TopBar);

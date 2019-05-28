@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, Fragment } from 'react';
+import { ChangeEvent, useState, Fragment, memo } from 'react';
 import {
   Box,
   createStyles,
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function SubredditControls({
+function SubredditControls({
   subreddit,
   deckId,
   removeSubreddit,
@@ -189,3 +189,5 @@ export default function SubredditControls({
     </Fragment>
   );
 }
+
+export default memo(SubredditControls);

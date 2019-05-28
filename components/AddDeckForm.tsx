@@ -1,4 +1,4 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, memo } from 'react';
 import uuid from 'uuidv4';
 import {
   Dialog,
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function AddDeck({ addDeck, activateDeck }) {
+function AddDeckForm({ addDeck, activateDeck }) {
   const theme = useTheme();
   const [ addFormOpen, setAddFormOpen ] = useState(false);
   const [ deckName, setDeckName ] = useState('');
@@ -104,3 +104,5 @@ export default function AddDeck({ addDeck, activateDeck }) {
     </Fragment>
   );
 }
+
+export default memo(AddDeckForm);
