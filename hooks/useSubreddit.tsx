@@ -50,27 +50,28 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
   );
   const firstLoad = useRef(true);
   // Used to store current subreddit/filter combo.
-  const combo = useRef<string>();
+  const currentFilter = useRef<string>();
   const mounted = useRef(true);
 
   const fetchData = useCallback(
     async () => {
+      // Only want to show loading if the combo has changed.
+      let filterChanged = currentFilter.current !== filter;
+
+      if (filterChanged) {
+        currentFilter.current = filter;
+      }
+
+      console.log({ firstLoad: firstLoad.current, isPaused, pauseOverride, filterChanged });
       if (firstLoad.current) {
         firstLoad.current = false;
       } else {
-        if (isPaused || pauseOverride) {
+        if (!filterChanged && (isPaused || pauseOverride)) {
           return;
         }
       }
 
-      // Only want to show loading if the combo has changed.
-      let shouldShowLoading = combo.current !== subreddit + filter;
-
-      if (shouldShowLoading) {
-        combo.current = subreddit + filter;
-      }
-
-      dispatch({ type: 'FETCH_INIT', payload: shouldShowLoading });
+      dispatch({ type: 'FETCH_INIT', payload: filterChanged });
 
       const url = `https://www.reddit.com/r/${subreddit}/${filter}.json`;
 
