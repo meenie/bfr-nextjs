@@ -17,14 +17,27 @@ module.exports = withPlugins([
         swDest: 'static/service-worker.js',
         runtimeCaching: [
           {
-            urlPattern: /^https?.*/,
-            handler: 'NetworkFirst',
+            urlPattern: /(?:_next\/static|static\/images).*/,
+            handler: 'CacheFirst',
             options: {
-              cacheName: 'https-calls',
-              networkTimeoutSeconds: 15,
+              cacheName: 'app-files',
               expiration: {
-                maxEntries: 150,
-                maxAgeSeconds: 30 * 24 * 60 * 60 // 1 month
+                maxEntries: 20,
+                maxAgeSeconds: 365 * 24 * 60 * 60 // 1 Year
+              },
+              cacheableResponse: {
+                statuses: [ 0, 200 ]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/(?:unpkg\.com|fonts\.googleapis\.com|fonts\.gstatic\.com|www\.redditstatic\.com).*/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'third-party-files',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 7 * 24 * 60 * 60 // 7 Days
               },
               cacheableResponse: {
                 statuses: [ 0, 200 ]
