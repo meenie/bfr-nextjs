@@ -90,7 +90,7 @@ export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
     const [ useCustomImg, videoUrl ] = extractVideoUrl(post);
 
     return {
-      id: post.id,
+      id: post.name,
       order: index,
       title: post.title.replace(/&amp;/g, '&'),
       url,

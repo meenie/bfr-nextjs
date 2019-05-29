@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect } from 'react';
+import React, { Fragment, memo } from 'react';
 import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
@@ -95,15 +95,6 @@ function Post({
   const onMediaStop = () => {
     setIsPaused(false);
   };
-
-  useEffect(
-    () => {
-      if (isCompact && !post.thumbnail) {
-        onLoad();
-      }
-    },
-    [ isCompact, post.thumbnail, onLoad ]
-  );
 
   const protocol = usingApollo ? 'apollo://' : 'https://';
 
