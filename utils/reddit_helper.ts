@@ -13,7 +13,7 @@ const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
 const REDDIT_URL = 'www.reddit.com';
 
 const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
-const extractVideoUrl = (post: RawPostData): [boolean, string | null] | undefined => {
+const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
   if (post.url.match(combineRegex([ STREAMABLE_REGEX, VIMEO_REGEX ]))) {
     return [ false, post.url ];
   }
@@ -26,14 +26,18 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] | undefine
     if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
       const firstCrosspost = post.crosspost_parent_list[0];
 
+      if (!firstCrosspost || !firstCrosspost.media || !firstCrosspost.media.reddit_video) {
+        return [ false, null ];
+      }
+
       return [ true, `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}` ];
     }
   }
 
-  if (post.media && post.media.type) {
+  if (post.media && post.media.type && post.media.oembed) {
     switch (post.media.type) {
       case 'gfycat.com': {
-        const matches: RegExpMatchArray = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
+        const matches: RegExpMatchArray | null = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
         if (matches) {
           return [ true, `https://giant.gfycat.com/${matches[1]}.webm` ];
         }
@@ -41,7 +45,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] | undefine
         break;
       }
       case 'm.youtube.com': {
-        return [ true, post.media.oembed.url ];
+        return [ true, post.media.oembed.url || null ];
       }
       default:
         const matches = post.media.oembed.html
@@ -52,13 +56,13 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] | undefine
         return matches ? [ false, matches[1] ] : [ false, null ];
     }
   } else {
-    const matches: RegExpMatchArray = post.url.match(IMGUR_REGEX);
+    const matches: RegExpMatchArray | null = post.url.match(IMGUR_REGEX);
     if (matches) {
       return [ true, `https://i.imgur.com/${matches[1]}.mp4` ];
     }
-
-    return [ false, null ];
   }
+
+  return [ false, null ];
 };
 const determineMedium = (post: RawPostData) => {
   if (post.media) {

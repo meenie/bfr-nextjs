@@ -72,7 +72,7 @@ function RedditMedia({
           url={post.videoUrl}
           controls={true}
           playing
-          light={post.useCustomImg ? post.image : true}
+          light={post.useCustomImg && post.image ? post.image : true}
           loop
           onReady={onLoad}
           onStart={onMediaStart}

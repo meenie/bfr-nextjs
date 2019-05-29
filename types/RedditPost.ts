@@ -4,20 +4,20 @@ export interface RedditPost {
   title: string;
   url: string;
   medium: string;
-  useCustomImg: boolean | string;
+  useCustomImg: boolean;
   videoUrl: null | string;
   score: number;
   subreddit: string;
   author: string;
   thumbnail: string;
-  image: undefined | string;
+  image: string | null;
   created: Date;
   commentsUrl: string;
   numComments: number;
   domain: string;
   domainUrl: string;
   selftext: string;
-  selftextHtml: string;
+  selftextHtml: string | null;
   awards: Award[];
 }
 
