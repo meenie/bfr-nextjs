@@ -13,7 +13,7 @@ const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
 const REDDIT_URL = 'www.reddit.com';
 
 const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
-const extractVideoUrl = (post: RawPostData): [boolean, string] => {
+const extractVideoUrl = (post: RawPostData): [boolean, string | null] | undefined => {
   if (post.url.match(combineRegex([ STREAMABLE_REGEX, VIMEO_REGEX ]))) {
     return [ false, post.url ];
   }
@@ -37,6 +37,11 @@ const extractVideoUrl = (post: RawPostData): [boolean, string] => {
         if (matches) {
           return [ true, `https://giant.gfycat.com/${matches[1]}.webm` ];
         }
+
+        break;
+      }
+      case 'm.youtube.com': {
+        return [ true, post.media.oembed.url ];
       }
       default:
         const matches = post.media.oembed.html

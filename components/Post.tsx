@@ -1,9 +1,11 @@
-import { Fragment, memo } from 'react';
+import React, { Fragment, memo, useEffect } from 'react';
 import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
+// @ts-ignore
 import TimeAgo from 'react-timeago';
 import NumberFormat from 'react-number-format';
+// @ts-ignore
 import abbreviate from 'number-abbreviate';
 
 import RedditMedia from './RedditMedia';
@@ -18,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
     headerText: {
       marginBottom: theme.spacing(2)
     },
-    header: ({ isCompact }) => {
+    header: ({ isCompact }: { isCompact: boolean }) => {
       return {
         flexDirection: isCompact ? 'row-reverse' : 'inherit',
         alignItems: 'flex-start'
@@ -73,12 +75,16 @@ function Post({
   post,
   setIsPaused,
   isCompact,
-  usingApollo
+  usingApollo,
+  onLoad,
+  onResize
 }: {
   post: RedditPost;
   setIsPaused: any;
   isCompact: boolean;
   usingApollo: boolean;
+  onLoad: any;
+  onResize: any;
 }) {
   const classes = useStyles({ isCompact });
 
@@ -89,6 +95,15 @@ function Post({
   const onMediaStop = () => {
     setIsPaused(false);
   };
+
+  useEffect(
+    () => {
+      if (isCompact && !post.thumbnail) {
+        onLoad();
+      }
+    },
+    [ isCompact, post.thumbnail, onLoad ]
+  );
 
   const protocol = usingApollo ? 'apollo://' : 'https://';
 
@@ -134,7 +149,14 @@ function Post({
           isCompact &&
           (post.thumbnail ? (
             <a href={post.url} rel="noopener noreferrer" target="_blank">
-              <img alt={post.title} title={post.title} className={classes.thumbnail} src={post.thumbnail} width={40} />
+              <img
+                alt={post.title}
+                title={post.title}
+                className={classes.thumbnail}
+                src={post.thumbnail}
+                width={40}
+                onLoad={onLoad}
+              />
             </a>
           ) : (
             <span>&nbsp;</span>
@@ -144,13 +166,13 @@ function Post({
 
       {!isCompact && (
         <CardContent>
-          <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} />
+          <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} onLoad={onLoad} />
         </CardContent>
       )}
 
       {!isCompact && (
         <CardContent>
-          <SelfTextHtml selfTextHtml={post.selftextHtml} />
+          <SelfTextHtml selfTextHtml={post.selftextHtml} onResize={onResize} />
         </CardContent>
       )}
 

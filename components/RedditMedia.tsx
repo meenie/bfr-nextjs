@@ -1,12 +1,13 @@
-import { Fragment, memo } from 'react';
-import { CardMedia, Theme } from '@material-ui/core';
+import React, { Fragment, memo, useEffect } from 'react';
+import { CardMedia } from '@material-ui/core';
 import ReactPlayer from 'react-player';
 import { makeStyles, createStyles } from '@material-ui/styles';
+// @ts-ignore
 import GifPlayer from '@mayankmohit/react-gif-player';
 
 import { RedditPost } from '../types/RedditPost';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     media: {
       maxHeight: '371.25px',
@@ -18,9 +19,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function RedditMedia({ post, onMediaStart, onMediaStop }: { post: RedditPost; onMediaStart: any; onMediaStop: any }) {
+function RedditMedia({
+  post,
+  onMediaStart,
+  onMediaStop,
+  onLoad
+}: {
+  post: RedditPost;
+  onMediaStart: any;
+  onMediaStop: any;
+  onLoad: any;
+}) {
   const classes = useStyles({ image: post.image });
-  const toggleGif = (playing) => {
+  const toggleGif = (playing: boolean) => {
     if (playing) {
       onMediaStart();
     } else {
@@ -28,16 +39,33 @@ function RedditMedia({ post, onMediaStart, onMediaStop }: { post: RedditPost; on
     }
   };
 
+  useEffect(
+    () => {
+      if (!post.medium || (post.medium === 'image' && !post.image)) {
+        onLoad();
+      }
+    },
+    [ post.medium, post.image, onLoad ]
+  );
+
   return (
     <Fragment>
-      {post.medium == 'image' &&
+      {post.medium === 'image' &&
       post.image && (
-        <CardMedia component="img" alt={post.title} className={classes.media} image={post.image} title={post.title} />
+        <CardMedia
+          component="img"
+          alt={post.title}
+          className={classes.media}
+          image={post.image}
+          title={post.title}
+          onLoad={onLoad}
+        />
       )}
 
-      {post.medium == 'gif' && post.url && <GifPlayer gif={post.url} still={post.image} onTogglePlay={toggleGif} />}
+      {post.medium === 'gif' &&
+      post.url && <GifPlayer gif={post.url} still={post.image} onTogglePlay={toggleGif} onLoad={onLoad} />}
 
-      {post.medium == 'video' &&
+      {post.medium === 'video' &&
       post.videoUrl && (
         <ReactPlayer
           width={'100%'}
@@ -46,6 +74,7 @@ function RedditMedia({ post, onMediaStart, onMediaStop }: { post: RedditPost; on
           playing
           light={post.useCustomImg ? post.image : true}
           loop
+          onReady={onLoad}
           onStart={onMediaStart}
           onPause={onMediaStop}
           onPlay={onMediaStart}

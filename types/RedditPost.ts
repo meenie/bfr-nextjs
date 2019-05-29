@@ -10,7 +10,7 @@ export interface RedditPost {
   subreddit: string;
   author: string;
   thumbnail: string;
-  image: null | string;
+  image: undefined | string;
   created: Date;
   commentsUrl: string;
   numComments: number;

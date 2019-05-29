@@ -6,5 +6,6 @@
     { "language": "typescriptreact", "autoFix": true }
   ],
   "prettier.useTabs": false,
-  "prettier.tabWidth": 2
+  "prettier.tabWidth": 2,
+  "eslint.enable": true
 }

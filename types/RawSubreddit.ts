@@ -211,6 +211,7 @@ interface Oembed {
   provider_name: string;
   thumbnail_url: string;
   thumbnail_height: number;
+  url?: string;
 }
 
 interface RedditVideo {
