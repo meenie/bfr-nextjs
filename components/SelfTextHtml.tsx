@@ -1,9 +1,9 @@
-import { memo, useState } from 'react';
-import { Theme, Fade, Box, Collapse, Button } from '@material-ui/core';
-import { makeStyles, createStyles, useTheme } from '@material-ui/styles';
+import React, { memo, useState } from 'react';
+import { Theme, useTheme, Fade, Box, Collapse, Button, makeStyles, createStyles } from '@material-ui/core';
+// @ts-ignore
 import SanitizedHTML from 'react-sanitized-html';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     selfPostContent: {
       position: 'relative'
@@ -18,12 +18,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function SelfTextHtml({ selfTextHtml, onResize }) {
+function SelfTextHtml({ selfTextHtml, onResize }: { selfTextHtml: string | null; onResize: any }) {
   const [ expanded, setExpanded ] = useState(false);
-  const theme: Theme = useTheme();
   const classes = useStyles();
+  const theme: Theme = useTheme();
+
   if (!selfTextHtml) {
-    return;
+    return null;
   }
 
   const handleClick = () => {

@@ -1,4 +1,5 @@
 import { useReducer, useEffect } from 'react';
+// @ts-ignore
 import createPersistedState from 'use-persisted-state';
 import { produce } from 'immer';
 
@@ -98,7 +99,7 @@ const useDecks = (initialState: State) => {
     () => {
       setLocalStorageState(state);
     },
-    [ state ]
+    [ state, setLocalStorageState ]
   );
 
   // Any change from local storage, set it to the state

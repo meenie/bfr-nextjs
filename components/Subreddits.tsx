@@ -1,8 +1,8 @@
-import { memo } from 'react';
-import { Theme, Grid } from '@material-ui/core';
-import { createStyles, makeStyles } from '@material-ui/styles';
+import React, { memo } from 'react';
+import { Theme, Grid, createStyles, makeStyles } from '@material-ui/core';
 
 import Subreddit from '../components/Subreddit';
+import { Deck } from '../hooks/useDecks';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,9 +22,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Subreddits({ activeDeck, removeSubreddit, usingApollo }) {
-  const subredditCount = activeDeck.subredditIds.length;
-  const classes = useStyles({ subredditCount });
+function Subreddits({
+  activeDeck,
+  removeSubreddit,
+  usingApollo
+}: {
+  activeDeck: Deck;
+  removeSubreddit: (subreddit: string) => void;
+  usingApollo: boolean;
+}) {
+  const classes = useStyles();
 
   return (
     <Grid container className={classes.grid} wrap="nowrap">

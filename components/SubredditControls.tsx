@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, Fragment, memo } from 'react';
+import React, { ChangeEvent, useState, Fragment, memo, SyntheticEvent } from 'react';
 import {
   Box,
   createStyles,
@@ -87,10 +87,20 @@ function SubredditControls({
   filter,
   isCompact,
   pauseOverride
+}: {
+  subreddit: string;
+  deckId: string;
+  removeSubreddit: ({ subreddit, deckId }: { subreddit: string; deckId: string }) => void;
+  setPauseOverride: (pauseOverride: boolean) => void;
+  setIsCompact: (isCompact: boolean) => void;
+  setFilter: (filter: string) => void;
+  filter: string;
+  isCompact: boolean;
+  pauseOverride: boolean;
 }) {
   const classes = useStyles();
-  const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState(null);
-  const [ arrowRef, setArrowRef ] = useState(null);
+  const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState();
+  const [ arrowRef, setArrowRef ] = useState();
 
   const refreshSwitch = (event: ChangeEvent<HTMLInputElement>) => {
     setPauseOverride(!event.target.checked);
@@ -98,10 +108,10 @@ function SubredditControls({
   const isCompactSwitch = (event: ChangeEvent<HTMLInputElement>) => {
     setIsCompact(event.target.checked);
   };
-  const handleMoreMenuClick = (event) => {
+  const handleMoreMenuClick = (event: SyntheticEvent<HTMLButtonElement>) => {
     setMoreMenuAnchorEl(moreMenuAnchorEl ? null : event.currentTarget);
   };
-  const handleArrowRef = (node) => {
+  const handleArrowRef = (node: HTMLSpanElement) => {
     setArrowRef(node);
   };
   const handleRemoveSubreddit = () => {
@@ -109,7 +119,7 @@ function SubredditControls({
   };
 
   const moreMenuOpen = Boolean(moreMenuAnchorEl);
-  const moreMenuId = moreMenuOpen ? `more-menu-popper` : null;
+  const moreMenuId = moreMenuOpen ? `more-menu-popper` : undefined;
 
   return (
     <Fragment>

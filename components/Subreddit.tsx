@@ -47,7 +47,8 @@ function Subreddit({
     setIsPaused,
     pauseOverride,
     setPauseOverride,
-    setAfter
+    setAfter,
+    fetchData
   } = useSubreddit(subreddit, deckId);
   const [ isCompact, setIsCompact ] = createPersistedState(`${deckId}-${subreddit}-is-compact`)(false);
 
@@ -78,6 +79,7 @@ function Subreddit({
         setIsPaused={setIsPaused}
         setAfter={setAfter}
         isCompact={isCompact}
+        fetchData={fetchData}
       />
     </Box>
   );

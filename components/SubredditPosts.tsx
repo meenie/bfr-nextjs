@@ -6,6 +6,19 @@ import { CellMeasurer, CellMeasurerCache, List, AutoSizer, InfiniteLoader } from
 import Post from './Post';
 import { RedditPost } from '../types/RedditPost';
 
+type Props = {
+  usingApollo: boolean;
+  isCompact: boolean;
+  posts: {
+    [postId: string]: RedditPost;
+  };
+  postIds: string[];
+  isLoading: boolean;
+  setIsPaused: (isPaused: boolean) => void;
+  setAfter: (after: string) => void;
+  fetchData: (forceLoad?: boolean) => Promise<void>;
+};
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     progress: {
@@ -32,16 +45,9 @@ function SubredditPosts({
   postIds: _postIds,
   isLoading,
   setIsPaused,
-  setAfter
-}: {
-  usingApollo: boolean;
-  isCompact: boolean;
-  posts: { [postId: string]: RedditPost };
-  postIds: string[];
-  isLoading: boolean;
-  setIsPaused: (isPaused: boolean) => void;
-  setAfter: (after: string) => void;
-}) {
+  setAfter,
+  fetchData
+}: Props) {
   const classes = useStyles();
 
   const listRef = useRef({
@@ -103,6 +109,7 @@ function SubredditPosts({
 
   const loadMoreRows = ({ startIndex }: { startIndex: number }) => {
     setAfter(postIds.current[startIndex - 1]);
+    return fetchData(true);
   };
 
   const recomputeRowHeights = useMemo(
@@ -155,7 +162,7 @@ function SubredditPosts({
     <Box className={classes.postsWrapper}>
       {isLoading && <CircularProgress className={classes.progress} />}
       {!isLoading && (
-        <InfiniteLoader isRowLoaded={isRowLoaded} loadMoreRows={loadMoreRows} rowCount={1000}>
+        <InfiniteLoader isRowLoaded={isRowLoaded} loadMoreRows={loadMoreRows} rowCount={Infinity}>
           {({ onRowsRendered }: { onRowsRendered: any }) => (
             <AutoSizer>
               {({ height, width }: { height: number; width: number }) => (

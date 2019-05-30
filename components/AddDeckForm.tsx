@@ -1,4 +1,5 @@
-import { useState, Fragment, memo } from 'react';
+import React, { useState, Fragment, memo } from 'react';
+// @ts-ignore
 import uuid from 'uuidv4';
 import {
   Dialog,
@@ -30,7 +31,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function AddDeckForm({ addDeck, activateDeck }) {
+function AddDeckForm({
+  addDeck,
+  activateDeck
+}: {
+  addDeck: ({ id, name, subredditIds }: { id: string; name: string; subredditIds: string[] }) => void;
+  activateDeck: (deckId: string) => void;
+}) {
   const theme = useTheme();
   const [ addFormOpen, setAddFormOpen ] = useState(false);
   const [ deckName, setDeckName ] = useState('');
@@ -44,6 +51,7 @@ function AddDeckForm({ addDeck, activateDeck }) {
 
   const handleAddDeck = () => {
     const id = uuid();
+
     addDeck({
       id,
       name: deckName,

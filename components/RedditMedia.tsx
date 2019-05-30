@@ -1,7 +1,6 @@
 import React, { Fragment, memo, useEffect } from 'react';
-import { CardMedia } from '@material-ui/core';
+import { CardMedia, makeStyles, createStyles } from '@material-ui/core';
 import ReactPlayer from 'react-player';
-import { makeStyles, createStyles } from '@material-ui/styles';
 // @ts-ignore
 import GifPlayer from '@mayankmohit/react-gif-player';
 
@@ -30,7 +29,7 @@ function RedditMedia({
   onMediaStop: any;
   onLoad: any;
 }) {
-  const classes = useStyles({ image: post.image });
+  const classes = useStyles();
   const toggleGif = (playing: boolean) => {
     if (playing) {
       onMediaStart();

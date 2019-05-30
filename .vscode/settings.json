@@ -7,5 +7,6 @@
   ],
   "prettier.useTabs": false,
   "prettier.tabWidth": 2,
-  "eslint.enable": true
+  "eslint.enable": true,
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

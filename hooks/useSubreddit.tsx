@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState, useCallback, useRef, Reducer } from 'react';
+import { useEffect, useReducer, useState, useRef, Reducer, useMemo } from 'react';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
 // @ts-ignore
@@ -85,8 +85,8 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
     _setFilter(newFilter);
   };
 
-  const fetchData = useCallback(
-    async () => {
+  const fetchData = useMemo(
+    () => async (forceLoad: boolean = false) => {
       // Only want to show loading if the combo has changed.
       let filterChanged = currentFilter.current !== filter;
 
@@ -103,8 +103,10 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
       if (firstLoad.current) {
         firstLoad.current = false;
       } else {
-        if (!filterChanged && !afterChanged && (isPaused.current || pauseOverride)) {
-          return;
+        if (!forceLoad) {
+          if (!filterChanged && !afterChanged && (isPaused.current || pauseOverride)) {
+            return;
+          }
         }
       }
 
@@ -152,7 +154,8 @@ const useSubreddit = (subreddit: string, deckId: string, initialFilter: string =
     setIsPaused,
     pauseOverride,
     setPauseOverride,
-    setAfter
+    setAfter,
+    fetchData
   };
 };
 

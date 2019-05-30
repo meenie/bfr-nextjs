@@ -4,44 +4,15 @@ import Head from 'next/head';
 import { ThemeProvider } from '@material-ui/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../config/theme';
+import { convertOldBFR } from '../utils/convert_old_bfr';
 
-// Convert old BangForReddit.com localStorage into new one
-let oldBfrDecksJson: string;
-if (process['browser'] && (oldBfrDecksJson = localStorage.getItem('BRF-decks.decks'))) {
-  const parsed = JSON.parse(oldBfrDecksJson);
-
-  const newJson = {
-    currentDeckId: parsed.currentDeckId,
-    deckIds: parsed.ids,
-    decks: parsed.entities
-  };
-
-  localStorage.setItem('bfr-decks', JSON.stringify(newJson));
-
-  let i = -1;
-  while (++i < parsed.ids.length) {
-    const deckId = parsed.ids[i];
-    const subredditSettings = parsed.entities[deckId].subredditSettings;
-    const subredditIds = parsed.entities[deckId].subredditIds;
-
-    let i2 = -1;
-    while (++i2 < subredditIds.length) {
-      const subredditId = subredditIds[i2];
-      localStorage.setItem(
-        `subreddit-${deckId}-${subredditId}`,
-        subredditSettings[subredditId].type ? `"${subredditSettings[subredditId].type}"` : `"hot"`
-      );
-    }
-  }
-
-  localStorage.removeItem('BRF-decks.decks');
-}
+convertOldBFR();
 
 class MyApp extends App {
   componentDidMount() {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
-    if (jssStyles !== null) {
+    if (jssStyles && jssStyles.parentNode) {
       jssStyles.parentNode.removeChild(jssStyles);
     }
   }
@@ -63,6 +34,7 @@ class MyApp extends App {
           html {
             padding-bottom: 136px;
             overflow-x: scroll;
+            overflow-y: hidden;
           }
           body {
             overflow: unset !important;
