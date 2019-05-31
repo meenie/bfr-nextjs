@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
-import { Theme, useTheme, Fade, Box, Collapse, Button, makeStyles, createStyles } from '@material-ui/core';
+import { Theme, Fade, Box, Collapse, Button, makeStyles, createStyles } from '@material-ui/core';
+import { useTheme } from '@material-ui/styles';
 // @ts-ignore
 import SanitizedHTML from 'react-sanitized-html';
 
@@ -18,7 +19,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function SelfTextHtml({ selfTextHtml, onResize }: { selfTextHtml: string | null; onResize: any }) {
+function SelfTextHtml({ selfTextHtml, onResize }: { selfTextHtml: string | undefined; onResize: any }) {
   const [ expanded, setExpanded ] = useState(false);
   const classes = useStyles();
   const theme: Theme = useTheme();

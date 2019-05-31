@@ -4,7 +4,7 @@ import ReactPlayer from 'react-player';
 // @ts-ignore
 import GifPlayer from '@mayankmohit/react-gif-player';
 
-import { RedditPost } from '../types/RedditPost';
+import { IPost } from '../models/Post';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -24,7 +24,7 @@ function RedditMedia({
   onMediaStop,
   onLoad
 }: {
-  post: RedditPost;
+  post: IPost;
   onMediaStart: any;
   onMediaStop: any;
   onLoad: any;

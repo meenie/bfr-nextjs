@@ -1,8 +1,9 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { Theme, Grid, createStyles, makeStyles } from '@material-ui/core';
+import { observer } from 'mobx-react-lite';
 
 import Subreddit from '../components/Subreddit';
-import { Deck } from '../hooks/useDecks';
+import { useStore } from '../hooks/useStore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,31 +23,18 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Subreddits({
-  activeDeck,
-  removeSubreddit,
-  usingApollo
-}: {
-  activeDeck: Deck;
-  removeSubreddit: (subreddit: string) => void;
-  usingApollo: boolean;
-}) {
+function Subreddits() {
   const classes = useStyles();
-
+  const store = useStore();
   return (
     <Grid container className={classes.grid} wrap="nowrap">
-      {activeDeck.subredditIds.map((subredditId: string) => (
-        <Grid item key={subredditId + activeDeck.id} className={classes.gridItem}>
-          <Subreddit
-            removeSubreddit={removeSubreddit}
-            subreddit={subredditId}
-            deckId={activeDeck.id}
-            usingApollo={usingApollo}
-          />
+      {store.currentDeck.subreddits.map((subreddit) => (
+        <Grid item key={subreddit.id + store.currentDeck.id} className={classes.gridItem}>
+          <Subreddit subreddit={subreddit} />
         </Grid>
       ))}
     </Grid>
   );
 }
 
-export default memo(Subreddits);
+export default observer(Subreddits);

@@ -3,7 +3,6 @@
  * This is not nice code.
  */
 import { RawPostData } from '../types/RawSubreddit';
-import { RedditPost } from '../types/RedditPost';
 
 const IMGUR_REGEX = new RegExp('imgur.com/(.*?).gifv?');
 const GFYCAT_REGEX = new RegExp('^http(?:s?)://thumbs.gfycat.com/(.*?)-size_restricted.gif$');
@@ -13,7 +12,7 @@ const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
 const REDDIT_URL = 'www.reddit.com';
 
 const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
-const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
+const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
   if (post.url.match(combineRegex([ STREAMABLE_REGEX, VIMEO_REGEX ]))) {
     return [ false, post.url ];
   }
@@ -27,7 +26,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
       const firstCrosspost = post.crosspost_parent_list[0];
 
       if (!firstCrosspost || !firstCrosspost.media || !firstCrosspost.media.reddit_video) {
-        return [ false, null ];
+        return [ false, undefined ];
       }
 
       return [ true, `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}` ];
@@ -45,7 +44,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
         break;
       }
       case 'm.youtube.com': {
-        return [ true, post.media.oembed.url || null ];
+        return [ true, post.media.oembed.url || undefined ];
       }
       default:
         const matches = post.media.oembed.html
@@ -53,7 +52,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
           .replace(/&gt;/g, '>')
           .replace(/&amp;/g, '&')
           .match(/src="(.*?)"/);
-        return matches ? [ false, matches[1] ] : [ false, null ];
+        return matches ? [ false, matches[1] ] : [ false, undefined ];
     }
   } else {
     const matches: RegExpMatchArray | null = post.url.match(IMGUR_REGEX);
@@ -62,7 +61,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | null] => {
     }
   }
 
-  return [ false, null ];
+  return [ false, undefined ];
 };
 const determineMedium = (post: RawPostData) => {
   if (post.media) {
@@ -80,8 +79,8 @@ const determineMedium = (post: RawPostData) => {
   return 'image';
 };
 
-export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
-  return posts.filter((post) => post.subreddit !== 'The_Donald').map((post, index) => {
+export function normalizeRedditPosts(posts: RawPostData[]) {
+  return posts.map((post, index) => {
     let url = post.url;
     if (post.media && post.media.reddit_video && post.media.reddit_video.fallback_url) {
       url = post.media.reddit_video.fallback_url;
@@ -98,30 +97,27 @@ export function normalizeRedditPosts(posts: RawPostData[]): RedditPost[] {
       useCustomImg,
       videoUrl,
       score: post.score,
-      subreddit: post.subreddit,
+      subreddit_source: post.subreddit_name_prefixed,
       author: post.author,
       thumbnail: post.thumbnail.slice(0, 4) === 'http' ? post.thumbnail : '',
-      image: post.preview ? post.preview.images[0].source.url.replace(/&amp;/g, '&') : null,
+      image: post.preview ? post.preview.images[0].source.url.replace(/&amp;/g, '&') : undefined,
       created: new Date(post.created_utc * 1000),
       commentsUrl: `${REDDIT_URL}${post.permalink}`,
       numComments: post.num_comments,
       domain: post.domain,
-      awards: post.all_awardings.map((award) => {
-        return {
-          id: award.id,
-          count: award.count,
-          name: award.name,
-          imageUrl: award.icon_url
-        };
-      }),
+      awards: post.all_awardings.map((award) => ({
+        id: award.id,
+        count: award.count,
+        name: award.name,
+        imageUrl: award.icon_url
+      })),
       domainUrl:
         post.domain.slice(0, 5) === 'self.'
           ? `${REDDIT_URL}/r/${post.subreddit}`
           : `${REDDIT_URL}/domain/${post.domain}`,
-      selftext: post.selftext,
       selftextHtml: !!post.selftext_html
         ? post.selftext_html.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/↵/g, '\\n').replace(/&amp;/g, '&')
-        : null
+        : undefined
     };
   });
 }

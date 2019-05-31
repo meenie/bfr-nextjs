@@ -1,23 +1,16 @@
-import React, { memo, useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Box, CircularProgress, createStyles, makeStyles, Theme } from '@material-ui/core';
 // @ts-ignore
 import { CellMeasurer, CellMeasurerCache, List, AutoSizer, InfiniteLoader } from 'react-virtualized';
+import { observer } from 'mobx-react-lite';
+import useInterval from '@use-it/interval';
+import useEventListener from '@use-it/event-listener';
 
+import { ISubreddit } from '../models/Subreddit';
 import Post from './Post';
-import { RedditPost } from '../types/RedditPost';
 
-type Props = {
-  usingApollo: boolean;
-  isCompact: boolean;
-  posts: {
-    [postId: string]: RedditPost;
-  };
-  postIds: string[];
-  isLoading: boolean;
-  setIsPaused: (isPaused: boolean) => void;
-  setAfter: (after: string) => void;
-  fetchData: (forceLoad?: boolean) => Promise<void>;
-};
+const SHORT_TIMER = 5e3;
+const LONG_TIMER = 5 * 60e3;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -38,28 +31,15 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function SubredditPosts({
-  usingApollo,
-  isCompact,
-  posts: _posts,
-  postIds: _postIds,
-  isLoading,
-  setIsPaused,
-  setAfter,
-  fetchData
-}: Props) {
+function SubredditPosts({ subreddit }: { subreddit: ISubreddit }) {
   const classes = useStyles();
-
+  const [ after, setAfter ] = useState<string | undefined>();
+  const [ refreshTiming, setRefreshTiming ] = useState(SHORT_TIMER);
   const listRef = useRef({
     recomputeRowHeights: () => {},
     forceUpdate: () => {}
   });
   const scrollTimeoutRef = useRef<number>();
-  const posts = useRef<{ [id: string]: RedditPost }>({});
-  const postIds = useRef<string[]>([]);
-
-  posts.current = _posts;
-  postIds.current = _postIds;
 
   const setListRef = (ref: any) => {
     if (ref) {
@@ -70,22 +50,22 @@ function SubredditPosts({
   const cache = useMemo(
     () => {
       return new CellMeasurerCache({
-        defaultHeight: isCompact ? 152 : 300,
+        defaultHeight: subreddit.isCompact ? 152 : 300,
         fixedWidth: true
       });
     },
-    [ isCompact ]
+    [ subreddit.isCompact ]
   );
 
   const onScroll = () => {
-    setIsPaused(true);
+    subreddit.setIsTempPaused(true);
 
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
 
     scrollTimeoutRef.current = window.setTimeout(() => {
-      setIsPaused(false);
+      subreddit.setIsTempPaused(false);
     }, 1000);
   };
 
@@ -95,21 +75,25 @@ function SubredditPosts({
       if (startIndex === 0 || startIndex === 1) {
         setAfter('');
       } else {
-        const postId = postIds.current[startIndex - 1];
-        setAfter(postId);
+        setAfter(subreddit.postIds[startIndex - 1]);
       }
 
       func(opts);
     };
   };
 
-  const isRowLoaded = ({ index }: { index: any }) => {
-    return !!postIds.current[index];
+  const isRowLoaded = ({ index }: { index: number }) => {
+    if (subreddit.postIds.length - 1 < index) {
+      return false;
+    }
+
+    return !!subreddit.postIds[index];
   };
 
   const loadMoreRows = ({ startIndex }: { startIndex: number }) => {
-    setAfter(postIds.current[startIndex - 1]);
-    return fetchData(true);
+    setAfter(subreddit.postIds[startIndex - 1]);
+
+    return subreddit.fetchPosts(after, false, false);
   };
 
   const recomputeRowHeights = useMemo(
@@ -129,39 +113,47 @@ function SubredditPosts({
     [ cache ]
   );
 
-  useEffect(recomputeRowHeights(), [ isCompact ]);
+  const rowRenderer = ({ key, index, style, parent }: { key: number; index: number; style: any; parent: any }) => {
+    const postId = subreddit.postIds[index];
+    const post = subreddit.posts.get(postId);
 
-  const rowRenderer = useMemo(
+    if (!post) {
+      return null;
+    }
+
+    return (
+      <CellMeasurer key={key} cache={cache} columnIndex={0} parent={parent} rowIndex={index}>
+        {({ measure }: { measure: any }) => (
+          <div style={style}>
+            <Post post={post} onLoad={measure} onResize={recomputeRowHeights(index)} />
+          </div>
+        )}
+      </CellMeasurer>
+    );
+  };
+
+  useEffect(recomputeRowHeights(), [ subreddit.isCompact ]);
+  useEffect(
     () => {
-      return ({ key, index, style, parent }: { key: number; index: number; style: any; parent: any }) => {
-        const postId = postIds.current[index];
-        const post = posts.current[postId];
-
-        return (
-          <CellMeasurer cache={cache} columnIndex={0} key={key} parent={parent} rowIndex={index}>
-            {({ measure }: { measure: any }) => (
-              <div style={style}>
-                <Post
-                  post={post}
-                  setIsPaused={setIsPaused}
-                  isCompact={isCompact}
-                  usingApollo={usingApollo}
-                  onLoad={measure}
-                  onResize={recomputeRowHeights(index)}
-                />
-              </div>
-            )}
-          </CellMeasurer>
-        );
-      };
+      subreddit.fetchPosts();
     },
-    [ cache, isCompact, recomputeRowHeights, setIsPaused, usingApollo ]
+    [ subreddit ]
   );
+  useInterval(() => {
+    if (subreddit.isPaused || subreddit.isTempPaused) {
+      return;
+    }
+
+    subreddit.fetchPosts(after, false, false);
+  }, refreshTiming);
+  useEventListener('visibilitychange', () => {
+    setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
+  });
 
   return (
     <Box className={classes.postsWrapper}>
-      {isLoading && <CircularProgress className={classes.progress} />}
-      {!isLoading && (
+      {subreddit.isLoading && <CircularProgress className={classes.progress} />}
+      {!subreddit.isLoading && (
         <InfiniteLoader isRowLoaded={isRowLoaded} loadMoreRows={loadMoreRows} rowCount={Infinity}>
           {({ onRowsRendered }: { onRowsRendered: any }) => (
             <AutoSizer>
@@ -173,7 +165,7 @@ function SubredditPosts({
                   ref={setListRef}
                   onRowsRendered={myOnRowsRendered(onRowsRendered)}
                   deferredMeasurementCache={cache}
-                  rowCount={postIds.current.length}
+                  rowCount={subreddit.postIds.length}
                   rowHeight={cache.rowHeight}
                   rowRenderer={rowRenderer}
                   onScroll={onScroll}
@@ -187,4 +179,4 @@ function SubredditPosts({
   );
 }
 
-export default memo(SubredditPosts);
+export default observer(SubredditPosts);

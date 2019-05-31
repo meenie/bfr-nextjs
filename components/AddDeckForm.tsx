@@ -19,6 +19,7 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import { Add } from '@material-ui/icons';
+import { useStore } from '../hooks/useStore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,14 +32,9 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function AddDeckForm({
-  addDeck,
-  activateDeck
-}: {
-  addDeck: ({ id, name, subredditIds }: { id: string; name: string; subredditIds: string[] }) => void;
-  activateDeck: (deckId: string) => void;
-}) {
+function AddDeckForm() {
   const theme = useTheme();
+  const store = useStore();
   const [ addFormOpen, setAddFormOpen ] = useState(false);
   const [ deckName, setDeckName ] = useState('');
   const [ deckSubreddits, setDeckSubreddits ] = useState('');
@@ -52,14 +48,17 @@ function AddDeckForm({
   const handleAddDeck = () => {
     const id = uuid();
 
-    addDeck({
+    store.addDeck({
       id,
       name: deckName,
-      subredditIds: deckSubreddits.split(',').map((s) => s.trim())
+      subreddits: deckSubreddits.split(',').map((s) => s.trim()).map((id) => ({
+        id,
+        deck: id
+      }))
     });
 
     handleCloseAddForm();
-    activateDeck(id);
+    store.setCurrentDeck(id);
     setDeckName('');
     setDeckSubreddits('');
   };

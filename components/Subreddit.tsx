@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { Box, createStyles, makeStyles, Theme, Typography } from '@material-ui/core';
 // @ts-ignore
-import createPersistedState from 'use-persisted-state';
 
-import useSubreddit from '../hooks/useSubreddit';
 import SubredditControls from './SubredditControls';
 import SubredditPosts from './SubredditPosts';
+import { ISubreddit } from '../models/Subreddit';
+import { observer } from 'mobx-react-lite';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,63 +26,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Subreddit({
-  subreddit,
-  deckId,
-  removeSubreddit,
-  usingApollo
-}: {
-  subreddit: any;
-  deckId: string;
-  removeSubreddit: any;
-  usingApollo: boolean;
-}) {
+function Subreddit({ subreddit }: { subreddit: ISubreddit }) {
   const classes = useStyles();
-  const {
-    posts,
-    postIds,
-    isLoading,
-    setFilter,
-    filter,
-    setIsPaused,
-    pauseOverride,
-    setPauseOverride,
-    setAfter,
-    fetchData
-  } = useSubreddit(subreddit, deckId);
-  const [ isCompact, setIsCompact ] = createPersistedState(`${deckId}-${subreddit}-is-compact`)(false);
 
   return (
     <Box className={classes.subredditWrapper}>
       <Box className={classes.subredditControls}>
-        <Typography variant="h5" className={classes.subredditTitle} title={'r/' + subreddit}>
-          r/{subreddit}
+        <Typography variant="h5" className={classes.subredditTitle} title={'r/' + subreddit.id}>
+          r/{subreddit.id}
         </Typography>
         <Box flexGrow={1} />
-        <SubredditControls
-          subreddit={subreddit}
-          deckId={deckId}
-          removeSubreddit={removeSubreddit}
-          setPauseOverride={setPauseOverride}
-          pauseOverride={pauseOverride}
-          isCompact={isCompact}
-          setIsCompact={setIsCompact}
-          filter={filter}
-          setFilter={setFilter}
-        />
+        <SubredditControls subreddit={subreddit} />
       </Box>
-      <SubredditPosts
-        usingApollo={usingApollo}
-        posts={posts}
-        postIds={postIds}
-        isLoading={isLoading}
-        setIsPaused={setIsPaused}
-        setAfter={setAfter}
-        isCompact={isCompact}
-        fetchData={fetchData}
-      />
+      <SubredditPosts subreddit={subreddit} />
     </Box>
   );
 }
 
-export default memo(Subreddit);
+export default observer(Subreddit);
