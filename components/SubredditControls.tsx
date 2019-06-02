@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, Fragment, memo, SyntheticEvent } from 'react';
+import React, { ChangeEvent, useState, Fragment, SyntheticEvent } from 'react';
 import {
   Box,
   createStyles,
@@ -17,6 +17,8 @@ import {
   Button
 } from '@material-ui/core';
 import { AccessTime, ShowChart, Star, Whatshot, MoreVert, Delete } from '@material-ui/icons';
+import { observer, Observer } from 'mobx-react-lite';
+import { ISubreddit } from '../models/Subreddit';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -77,36 +79,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function SubredditControls({
-  subreddit,
-  deckId,
-  removeSubreddit,
-  setPauseOverride,
-  setIsCompact,
-  setFilter,
-  filter,
-  isCompact,
-  pauseOverride
-}: {
-  subreddit: string;
-  deckId: string;
-  removeSubreddit: ({ subreddit, deckId }: { subreddit: string; deckId: string }) => void;
-  setPauseOverride: (pauseOverride: boolean) => void;
-  setIsCompact: (isCompact: boolean) => void;
-  setFilter: (filter: string) => void;
-  filter: string;
-  isCompact: boolean;
-  pauseOverride: boolean;
-}) {
+function SubredditControls({ subreddit }: { subreddit: ISubreddit }) {
   const classes = useStyles();
   const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState();
   const [ arrowRef, setArrowRef ] = useState();
 
   const refreshSwitch = (event: ChangeEvent<HTMLInputElement>) => {
-    setPauseOverride(!event.target.checked);
+    subreddit.setIsPaused(!event.target.checked);
   };
   const isCompactSwitch = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsCompact(event.target.checked);
+    subreddit.setIsCompact(event.target.checked);
   };
   const handleMoreMenuClick = (event: SyntheticEvent<HTMLButtonElement>) => {
     setMoreMenuAnchorEl(moreMenuAnchorEl ? null : event.currentTarget);
@@ -115,7 +97,7 @@ function SubredditControls({
     setArrowRef(node);
   };
   const handleRemoveSubreddit = () => {
-    removeSubreddit({ deckId, subreddit });
+    subreddit.remove();
   };
 
   const moreMenuOpen = Boolean(moreMenuAnchorEl);
@@ -124,7 +106,7 @@ function SubredditControls({
   return (
     <Fragment>
       <FormControl className={classes.filterSelector}>
-        <Select onChange={(e: any) => setFilter(e.target.value)} value={filter}>
+        <Select onChange={(e: any) => subreddit.setFilter(e.target.value)} value={subreddit.filter}>
           <MenuItem value={'hot'}>
             <Whatshot className={classes.menuIcon} />
             <span>Hot</span>
@@ -162,37 +144,41 @@ function SubredditControls({
           }}
         >
           {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={350}>
-              <Paper className={classes.popperContent}>
-                <span className={classes.arrow} ref={handleArrowRef} />
-                <Box display="block">
-                  <FormControlLabel
-                    classes={{
-                      label: classes.moreMenuContainerLabels
-                    }}
-                    labelPlacement="start"
-                    control={<Switch checked={isCompact} onChange={isCompactSwitch} color="primary" />}
-                    label="Compact Posts"
-                  />
-                </Box>
-                <Box display="block">
-                  <FormControlLabel
-                    classes={{
-                      label: classes.moreMenuContainerLabels
-                    }}
-                    labelPlacement="start"
-                    control={<Switch checked={!pauseOverride} onChange={refreshSwitch} color="primary" />}
-                    label="Auto Refresh"
-                  />
-                </Box>
-                <Box display="block" className={classes.deleteButtonContainer}>
-                  <Button variant="contained" color="secondary" onClick={handleRemoveSubreddit}>
-                    <Delete className={classes.deleteIcon} />
-                    Delete
-                  </Button>
-                </Box>
-              </Paper>
-            </Fade>
+            <Observer>
+              {() => (
+                <Fade {...TransitionProps} timeout={350}>
+                  <Paper className={classes.popperContent}>
+                    <span className={classes.arrow} ref={handleArrowRef} />
+                    <Box display="block">
+                      <FormControlLabel
+                        classes={{
+                          label: classes.moreMenuContainerLabels
+                        }}
+                        labelPlacement="start"
+                        control={<Switch checked={subreddit.isCompact} onChange={isCompactSwitch} color="primary" />}
+                        label="Compact Posts"
+                      />
+                    </Box>
+                    <Box display="block">
+                      <FormControlLabel
+                        classes={{
+                          label: classes.moreMenuContainerLabels
+                        }}
+                        labelPlacement="start"
+                        control={<Switch checked={!subreddit.isPaused} onChange={refreshSwitch} color="primary" />}
+                        label="Auto Refresh"
+                      />
+                    </Box>
+                    <Box display="block" className={classes.deleteButtonContainer}>
+                      <Button variant="contained" color="secondary" onClick={handleRemoveSubreddit}>
+                        <Delete className={classes.deleteIcon} />
+                        Delete
+                      </Button>
+                    </Box>
+                  </Paper>
+                </Fade>
+              )}
+            </Observer>
           )}
         </Popper>
       </ClickAwayListener>
@@ -200,4 +186,4 @@ function SubredditControls({
   );
 }
 
-export default memo(SubredditControls);
+export default observer(SubredditControls);

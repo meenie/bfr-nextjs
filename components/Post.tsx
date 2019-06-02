@@ -1,4 +1,4 @@
-import React, { Fragment, memo } from 'react';
+import React, { Fragment } from 'react';
 import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Box } from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
@@ -7,10 +7,12 @@ import TimeAgo from 'react-timeago';
 import NumberFormat from 'react-number-format';
 // @ts-ignore
 import abbreviate from 'number-abbreviate';
+import { observer } from 'mobx-react-lite';
 
 import RedditMedia from './RedditMedia';
-import { RedditPost } from '../types/RedditPost';
 import SelfTextHtml from './SelfTextHtml';
+import { useStore } from '../hooks/useStore';
+import { IPost } from '../models/Post';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,32 +73,19 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Post({
-  post,
-  setIsPaused,
-  isCompact,
-  usingApollo,
-  onLoad,
-  onResize
-}: {
-  post: RedditPost;
-  setIsPaused: any;
-  isCompact: boolean;
-  usingApollo: boolean;
-  onLoad: any;
-  onResize: any;
-}) {
-  const classes = useStyles({ isCompact });
+function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: any }) {
+  const classes = useStyles({ isCompact: post.subreddit.isCompact });
+  const store = useStore();
 
   const onMediaStart = () => {
-    setIsPaused(true);
+    post.subreddit.setIsTempPaused(true);
   };
 
   const onMediaStop = () => {
-    setIsPaused(false);
+    post.subreddit.setIsTempPaused(true);
   };
 
-  const protocol = usingApollo ? 'apollo://' : 'https://';
+  const protocol = store.usingApollo ? 'apollo://' : 'https://';
 
   return (
     <Card className={classes.card}>
@@ -116,8 +105,8 @@ function Post({
               {post.author}
             </a>
             <span> to </span>
-            <a href={`${protocol}reddit.com/r/${post.subreddit}`} rel="noopener noreferrer" target="_blank">
-              r/{post.subreddit}
+            <a href={`${protocol}reddit.com/r/${post.subreddit_source}`} rel="noopener noreferrer" target="_blank">
+              r/{post.subreddit_source}
             </a>
             {post.awards.map((award) => {
               return (
@@ -137,7 +126,7 @@ function Post({
           title: classes.headerText
         }}
         avatar={
-          isCompact &&
+          post.subreddit.isCompact &&
           (post.thumbnail ? (
             <a href={post.url} rel="noopener noreferrer" target="_blank">
               <img
@@ -155,13 +144,13 @@ function Post({
         }
       />
 
-      {!isCompact && (
+      {!post.subreddit.isCompact && (
         <CardContent>
           <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} onLoad={onLoad} />
         </CardContent>
       )}
 
-      {!isCompact && (
+      {!post.subreddit.isCompact && (
         <CardContent>
           <SelfTextHtml selfTextHtml={post.selftextHtml} onResize={onResize} />
         </CardContent>
@@ -196,7 +185,7 @@ function Post({
         </Typography>
       </CardContent>
 
-      {!isCompact && (
+      {!post.subreddit.isCompact && (
         <CardActions>
           <Button size="small" href={post.url} rel="noopener noreferrer" target="_blank">
             View Link
@@ -210,4 +199,4 @@ function Post({
   );
 }
 
-export default memo(Post);
+export default observer(Post);

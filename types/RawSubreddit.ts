@@ -136,8 +136,8 @@ interface AllAwarding {
   days_of_drip_extension: number;
   award_type: AwardType;
   coin_price: number;
-  id: ID;
-  name: Name;
+  id: string;
+  name: string;
 }
 
 export enum AwardType {

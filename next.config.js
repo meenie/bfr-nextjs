@@ -17,12 +17,12 @@ module.exports = withPlugins([
         swDest: 'static/service-worker.js',
         runtimeCaching: [
           {
-            urlPattern: /(?:_next\/static|static\/images).*/,
+            urlPattern: /(?:\/_next\/static|\/static\/images).*/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'app-files',
               expiration: {
-                maxEntries: 20,
+                maxEntries: 50,
                 maxAgeSeconds: 365 * 24 * 60 * 60 // 1 Year
               },
               cacheableResponse: {
@@ -36,7 +36,7 @@ module.exports = withPlugins([
             options: {
               cacheName: 'third-party-files',
               expiration: {
-                maxEntries: 20,
+                maxEntries: 50,
                 maxAgeSeconds: 7 * 24 * 60 * 60 // 7 Days
               },
               cacheableResponse: {

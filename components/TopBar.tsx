@@ -1,4 +1,4 @@
-import { memo, useState, ChangeEvent } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -9,93 +9,43 @@ import {
   IconButton,
   ClickAwayListener,
   Popper,
-  Fade,
-  Paper,
-  FormControlLabel,
-  Switch,
-  Button,
   makeStyles,
   createStyles,
-  Theme,
-  FormHelperText
+  Theme
 } from '@material-ui/core';
-import { MoreVert, Delete } from '@material-ui/icons';
+import { MoreVert } from '@material-ui/icons';
+import { observer } from 'mobx-react-lite';
+
+import { useStore } from '../hooks/useStore';
+import TopBarMoreMenu from './TopBarMoreMenu';
+import { IDeck } from '../models/Deck';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    moreMenuContainerLabels: {
-      width: '130px'
-    },
-    helperText: {
-      marginTop: 0,
-      marginLeft: theme.spacing(2)
-    },
-    deleteButtonContainer: {
-      marginTop: theme.spacing(2),
-      textAlign: 'center'
-    },
-    deleteIcon: {
-      marginRight: theme.spacing(1)
-    },
-    arrow: {
-      position: 'absolute',
-      fontSize: 7,
-      width: '3em',
-      height: '3em',
-      '&::before': {
-        content: '""',
-        margin: 'auto',
-        display: 'block',
-        width: 0,
-        height: 0,
-        borderStyle: 'solid'
-      }
-    },
     popper: {
-      zIndex: theme.zIndex.drawer,
-      '&[x-placement*="bottom"] $arrow': {
-        top: 0,
-        left: 0,
-        marginTop: '-0.9em',
-        width: '3em',
-        height: '1em',
-        '&::before': {
-          borderWidth: '0 1em 1em 1em',
-          borderColor: `transparent transparent ${theme.palette.common.white} transparent`
-        }
-      }
-    },
-    popperContent: {
-      padding: theme.spacing(2)
+      zIndex: theme.zIndex.drawer
     }
   })
 );
 
-function TopBar({ activeDeck, activateDeck, deckIds, decks, setUsingApollo, usingApollo, removeDeck }) {
+function TopBar() {
   const classes = useStyles();
   const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState(null);
   const [ arrowRef, setArrowRef ] = useState(null);
+  const store = useStore();
 
-  const setUsingApolloSwitch = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsingApollo(event.target.checked);
-  };
-  const handleMoreMenuClick = (event) => {
+  const handleMoreMenuClick = (event: any) => {
     setMoreMenuAnchorEl(moreMenuAnchorEl ? null : event.currentTarget);
   };
-  const handleArrowRef = (node) => {
+  const handleArrowRef = (node: any) => {
     setArrowRef(node);
   };
-  const handleRemoveDeck = () => {
-    removeDeck(activeDeck.id);
-    setMoreMenuAnchorEl(null);
-  };
-  const handleTabChange = (event, deckId) => {
-    activateDeck(deckId);
+  const closeMoreMenu = () => {
     setMoreMenuAnchorEl(null);
   };
 
   const moreMenuOpen = Boolean(moreMenuAnchorEl);
-  const moreMenuId = moreMenuOpen ? `top-bar-more-menu-popper` : null;
+  const moreMenuId = moreMenuOpen ? `top-bar-more-menu-popper` : undefined;
 
   return (
     <AppBar position="fixed">
@@ -106,15 +56,20 @@ function TopBar({ activeDeck, activateDeck, deckIds, decks, setUsingApollo, usin
           </Typography>
         </Box>
         <Box width="50%">
-          <Tabs value={activeDeck.id} variant="scrollable" scrollButtons="on" onChange={handleTabChange}>
-            {deckIds.map((deckId: string) => <Tab key={deckId} value={deckId} label={decks[deckId].name} />)}
+          <Tabs
+            value={store.currentDeck}
+            variant="scrollable"
+            scrollButtons="on"
+            onChange={(event, deck: IDeck) => store.setCurrentDeck(deck)}
+          >
+            {store.decks.map((deck) => <Tab key={deck.id} value={deck} label={deck.name} />)}
           </Tabs>
         </Box>
         <Box flexGrow={1} />
         <IconButton aria-describedby={moreMenuId} onClick={handleMoreMenuClick}>
           <MoreVert />
         </IconButton>
-        <ClickAwayListener onClickAway={() => setMoreMenuAnchorEl(null)}>
+        <ClickAwayListener onClickAway={closeMoreMenu}>
           <Popper
             className={classes.popper}
             placement="bottom-end"
@@ -130,30 +85,11 @@ function TopBar({ activeDeck, activateDeck, deckIds, decks, setUsingApollo, usin
             }}
           >
             {({ TransitionProps }) => (
-              <Fade {...TransitionProps} timeout={350}>
-                <Paper className={classes.popperContent}>
-                  <span className={classes.arrow} ref={handleArrowRef} />
-                  <Box display="block">
-                    <FormControlLabel
-                      classes={{
-                        label: classes.moreMenuContainerLabels
-                      }}
-                      labelPlacement="start"
-                      control={<Switch checked={usingApollo} onChange={setUsingApolloSwitch} color="primary" />}
-                      label="Using Apollo?"
-                    />
-                    <FormHelperText className={classes.helperText}>
-                      Turn this on to open links in Apollo.
-                    </FormHelperText>
-                  </Box>
-                  <Box display="block" className={classes.deleteButtonContainer}>
-                    <Button variant="contained" color="secondary" onClick={handleRemoveDeck}>
-                      <Delete className={classes.deleteIcon} />
-                      Delete Deck
-                    </Button>
-                  </Box>
-                </Paper>
-              </Fade>
+              <TopBarMoreMenu
+                transitionProps={TransitionProps}
+                handleArrowRef={handleArrowRef}
+                closeMoreMenu={closeMoreMenu}
+              />
             )}
           </Popper>
         </ClickAwayListener>
@@ -162,4 +98,4 @@ function TopBar({ activeDeck, activateDeck, deckIds, decks, setUsingApollo, usin
   );
 }
 
-export default memo(TopBar);
+export default observer(TopBar);
