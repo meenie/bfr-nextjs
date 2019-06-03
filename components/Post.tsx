@@ -1,5 +1,14 @@
 import React, { Fragment } from 'react';
-import { Typography, Theme, Card, CardContent, CardActions, Button, CardHeader, Box } from '@material-ui/core';
+import {
+  Typography,
+  Theme,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  CardHeader,
+  Box
+} from '@material-ui/core';
 import { makeStyles, createStyles } from '@material-ui/styles';
 import { ArrowUpward, Chat, AccessTime } from '@material-ui/icons';
 // @ts-ignore
@@ -73,7 +82,15 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: any }) {
+function Post({
+  post,
+  onLoad,
+  onResize
+}: {
+  post: IPost;
+  onLoad: any;
+  onResize: any;
+}) {
   const classes = useStyles({ isCompact: post.subreddit.isCompact });
   const store = useStore();
 
@@ -92,7 +109,9 @@ function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: 
       <CardHeader
         title={
           <Fragment>
-            <span title={`Score: ${post.score}`}>{abbreviate(post.score, 2)}</span>&nbsp;&mdash;&nbsp;
+            <span title={`Score: ${post.score}`}>
+              {abbreviate(post.score, 2)}
+            </span>&nbsp;&mdash;&nbsp;
             <a href={post.url} rel="noopener noreferrer" target="_blank">
               {post.title}
             </a>
@@ -101,17 +120,31 @@ function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: 
         subheader={
           <Fragment>
             <span>Posted by: </span>
-            <a href={`${protocol}reddit.com/u/${post.author}`} rel="noopener noreferrer" target="_blank">
+            <a
+              href={`${protocol}reddit.com/u/${post.author}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               {post.author}
             </a>
             <span> to </span>
-            <a href={`${protocol}reddit.com/r/${post.subreddit_source}`} rel="noopener noreferrer" target="_blank">
+            <a
+              href={`${protocol}reddit.com/r/${post.subreddit_source}`}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               r/{post.subreddit_source}
             </a>
             {post.awards.map((award) => {
               return (
                 <Box key={award.id} className={classes.award} component="span">
-                  <img src={award.imageUrl} width={16} height={16} alt={award.name} title={award.name} />
+                  <img
+                    src={award.imageUrl}
+                    width={16}
+                    height={16}
+                    alt={award.name}
+                    title={award.name}
+                  />
                   <span>{award.count}</span>
                 </Box>
               );
@@ -146,13 +179,22 @@ function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: 
 
       {!post.subreddit.isCompact && (
         <CardContent>
-          <RedditMedia post={post} onMediaStart={onMediaStart} onMediaStop={onMediaStop} onLoad={onLoad} />
+          <RedditMedia
+            post={post}
+            onMediaStart={onMediaStart}
+            onMediaStop={onMediaStop}
+            onLoad={onLoad}
+          />
         </CardContent>
       )}
 
-      {!post.subreddit.isCompact && (
+      {!post.subreddit.isCompact &&
+      post.sanitizedSelftextHtml && (
         <CardContent>
-          <SelfTextHtml selfTextHtml={post.selftextHtml} onResize={onResize} />
+          <SelfTextHtml
+            sanitizedSelftextHtml={post.sanitizedSelftextHtml}
+            onResize={onResize}
+          />
         </CardContent>
       )}
 
@@ -187,10 +229,20 @@ function Post({ post, onLoad, onResize }: { post: IPost; onLoad: any; onResize: 
 
       {!post.subreddit.isCompact && (
         <CardActions>
-          <Button size="small" href={post.url} rel="noopener noreferrer" target="_blank">
+          <Button
+            size="small"
+            href={post.url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             View Link
           </Button>
-          <Button size="small" href={protocol + post.commentsUrl} rel="noopener noreferrer" target="_blank">
+          <Button
+            size="small"
+            href={protocol + post.commentsUrl}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             View Comments
           </Button>
         </CardActions>

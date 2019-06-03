@@ -1,7 +1,19 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react';
-import { Box, CircularProgress, createStyles, makeStyles, Theme } from '@material-ui/core';
+import {
+  Box,
+  CircularProgress,
+  createStyles,
+  makeStyles,
+  Theme
+} from '@material-ui/core';
 // @ts-ignore
-import { CellMeasurer, CellMeasurerCache, List, AutoSizer, InfiniteLoader } from 'react-virtualized';
+import {
+  CellMeasurer,
+  CellMeasurerCache,
+  List,
+  AutoSizer,
+  InfiniteLoader
+} from 'react-virtualized';
 import { observer } from 'mobx-react-lite';
 import useInterval from '@use-it/interval';
 import useEventListener from '@use-it/event-listener';
@@ -113,7 +125,17 @@ function SubredditPosts({ subreddit }: { subreddit: ISubreddit }) {
     [ cache ]
   );
 
-  const rowRenderer = ({ key, index, style, parent }: { key: number; index: number; style: any; parent: any }) => {
+  const rowRenderer = ({
+    key,
+    index,
+    style,
+    parent
+  }: {
+    key: number;
+    index: number;
+    style: any;
+    parent: any;
+  }) => {
     const postId = subreddit.postIds[index];
     const post = subreddit.posts.get(postId);
 
@@ -122,10 +144,20 @@ function SubredditPosts({ subreddit }: { subreddit: ISubreddit }) {
     }
 
     return (
-      <CellMeasurer key={key} cache={cache} columnIndex={0} parent={parent} rowIndex={index}>
+      <CellMeasurer
+        key={key}
+        cache={cache}
+        columnIndex={0}
+        parent={parent}
+        rowIndex={index}
+      >
         {({ measure }: { measure: any }) => (
           <div style={style}>
-            <Post post={post} onLoad={measure} onResize={recomputeRowHeights(index)} />
+            <Post
+              post={post}
+              onLoad={measure}
+              onResize={recomputeRowHeights(index)}
+            />
           </div>
         )}
       </CellMeasurer>
@@ -147,14 +179,20 @@ function SubredditPosts({ subreddit }: { subreddit: ISubreddit }) {
     subreddit.fetchPosts(after, false, false);
   }, refreshTiming);
   useEventListener('visibilitychange', () => {
-    setRefreshTiming(document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER);
+    setRefreshTiming(
+      document.visibilityState === 'hidden' ? LONG_TIMER : SHORT_TIMER
+    );
   });
 
   return (
     <Box className={classes.postsWrapper}>
       {subreddit.isLoading && <CircularProgress className={classes.progress} />}
       {!subreddit.isLoading && (
-        <InfiniteLoader isRowLoaded={isRowLoaded} loadMoreRows={loadMoreRows} rowCount={Infinity}>
+        <InfiniteLoader
+          isRowLoaded={isRowLoaded}
+          loadMoreRows={loadMoreRows}
+          rowCount={Infinity}
+        >
           {({ onRowsRendered }: { onRowsRendered: any }) => (
             <AutoSizer>
               {({ height, width }: { height: number; width: number }) => (

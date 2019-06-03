@@ -60,7 +60,7 @@ const Subreddit = types
       ) {
         const url = `https://www.reddit.com/r/${self.id}/${self.filter}.json`;
 
-        if (self.isLoading) {
+        if (!resetPosts && self.isLoading) {
           return;
         }
 
