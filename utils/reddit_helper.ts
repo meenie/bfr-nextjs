@@ -5,13 +5,16 @@
 import { RawPostData } from '../types/RawSubreddit';
 
 const IMGUR_REGEX = new RegExp('imgur.com/(.*?).gifv?');
-const GFYCAT_REGEX = new RegExp('^http(?:s?)://thumbs.gfycat.com/(.*?)-size_restricted.gif$');
+const GFYCAT_REGEX = new RegExp(
+  '^http(?:s?)://thumbs.gfycat.com/(.*?)-size_restricted.gif$'
+);
 const STREAMABLE_REGEX = new RegExp('streamable.com');
 const VIMEO_REGEX = new RegExp('vimeo.com');
 const REDDIT_VIDEO_REGEX = new RegExp('^https://v.redd.it');
 const REDDIT_URL = 'www.reddit.com';
 
-const combineRegex = (regexes: RegExp[]) => new RegExp(regexes.map((regex) => regex.source).join('|'));
+const combineRegex = (regexes: RegExp[]) =>
+  new RegExp(regexes.map((regex) => regex.source).join('|'));
 const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
   if (post.url.match(combineRegex([ STREAMABLE_REGEX, VIMEO_REGEX ]))) {
     return [ false, post.url ];
@@ -19,24 +22,37 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
 
   if (post.url.match(REDDIT_VIDEO_REGEX)) {
     if (post.media && post.media.reddit_video) {
-      return [ true, `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}` ];
+      return [
+        true,
+        `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`
+      ];
     }
 
     if (post.crosspost_parent_list && post.crosspost_parent_list.length > 0) {
       const firstCrosspost = post.crosspost_parent_list[0];
 
-      if (!firstCrosspost || !firstCrosspost.media || !firstCrosspost.media.reddit_video) {
+      if (
+        !firstCrosspost ||
+        !firstCrosspost.media ||
+        !firstCrosspost.media.reddit_video
+      ) {
         return [ false, undefined ];
       }
 
-      return [ true, `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video.dash_url}` ];
+      return [
+        true,
+        `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video
+          .dash_url}`
+      ];
     }
   }
 
   if (post.media && post.media.type && post.media.oembed) {
     switch (post.media.type) {
       case 'gfycat.com': {
-        const matches: RegExpMatchArray | null = post.media.oembed.thumbnail_url.match(GFYCAT_REGEX);
+        const matches: RegExpMatchArray | null = post.media.oembed.thumbnail_url.match(
+          GFYCAT_REGEX
+        );
         if (matches) {
           return [ true, `https://giant.gfycat.com/${matches[1]}.webm` ];
         }
@@ -45,6 +61,9 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
       }
       case 'm.youtube.com': {
         return [ true, post.media.oembed.url || undefined ];
+      }
+      case 'soundcloud.com': {
+        return [ true, post.url ];
       }
       default:
         const matches = post.media.oembed.html
@@ -68,7 +87,16 @@ const determineMedium = (post: RawPostData) => {
     return 'video';
   }
 
-  if (post.url.match(combineRegex([ IMGUR_REGEX, STREAMABLE_REGEX, VIMEO_REGEX, REDDIT_VIDEO_REGEX ]))) {
+  if (
+    post.url.match(
+      combineRegex([
+        IMGUR_REGEX,
+        STREAMABLE_REGEX,
+        VIMEO_REGEX,
+        REDDIT_VIDEO_REGEX
+      ])
+    )
+  ) {
     return 'video';
   }
 
@@ -82,7 +110,11 @@ const determineMedium = (post: RawPostData) => {
 export function normalizeRedditPosts(posts: RawPostData[]) {
   return posts.map((post, index) => {
     let url = post.url;
-    if (post.media && post.media.reddit_video && post.media.reddit_video.fallback_url) {
+    if (
+      post.media &&
+      post.media.reddit_video &&
+      post.media.reddit_video.fallback_url
+    ) {
       url = post.media.reddit_video.fallback_url;
     }
 
@@ -100,7 +132,9 @@ export function normalizeRedditPosts(posts: RawPostData[]) {
       subreddit_source: post.subreddit_name_prefixed,
       author: post.author,
       thumbnail: post.thumbnail.slice(0, 4) === 'http' ? post.thumbnail : '',
-      image: post.preview ? post.preview.images[0].source.url.replace(/&amp;/g, '&') : undefined,
+      image: post.preview
+        ? post.preview.images[0].source.url.replace(/&amp;/g, '&')
+        : undefined,
       created: new Date(post.created_utc * 1000),
       commentsUrl: `${REDDIT_URL}${post.permalink}`,
       numComments: post.num_comments,
@@ -116,7 +150,11 @@ export function normalizeRedditPosts(posts: RawPostData[]) {
           ? `${REDDIT_URL}/r/${post.subreddit}`
           : `${REDDIT_URL}/domain/${post.domain}`,
       selftextHtml: !!post.selftext_html
-        ? post.selftext_html.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/↵/g, '\\n').replace(/&amp;/g, '&')
+        ? post.selftext_html
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/↵/g, '\\n')
+            .replace(/&amp;/g, '&')
         : undefined
     };
   });

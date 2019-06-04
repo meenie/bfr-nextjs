@@ -129,7 +129,7 @@ function Post({
             </a>
             <span> to </span>
             <a
-              href={`${protocol}reddit.com/r/${post.subreddit_source}`}
+              href={`${protocol}reddit.com/${post.subreddit_source}`}
               rel="noopener noreferrer"
               target="_blank"
             >
