@@ -133,7 +133,7 @@ function Post({
               rel="noopener noreferrer"
               target="_blank"
             >
-              r/{post.subreddit_source}
+              {post.subreddit_source}
             </a>
             {post.awards.map((award) => {
               return (

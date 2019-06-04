@@ -6,13 +6,13 @@ import {
   makeStyles,
   Theme
 } from '@material-ui/core';
-// @ts-ignore
 import {
   CellMeasurer,
   CellMeasurerCache,
   List,
   AutoSizer,
   InfiniteLoader
+  // @ts-ignore
 } from 'react-virtualized';
 import { observer } from 'mobx-react-lite';
 import useInterval from '@use-it/interval';

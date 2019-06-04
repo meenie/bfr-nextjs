@@ -62,7 +62,14 @@ function RedditMedia({
       )}
 
       {post.medium === 'gif' &&
-      post.url && <GifPlayer gif={post.url} still={post.image} onTogglePlay={toggleGif} onLoad={onLoad} />}
+      post.url && (
+        <GifPlayer
+          gif={post.url}
+          still={post.image}
+          onTogglePlay={toggleGif}
+          onLoad={onLoad}
+        />
+      )}
 
       {post.medium === 'video' &&
       post.videoUrl && (
