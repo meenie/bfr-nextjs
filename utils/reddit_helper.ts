@@ -24,7 +24,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
     if (post.media && post.media.reddit_video) {
       return [
         true,
-        `https://cors-anywhere.herokuapp.com/${post.media.reddit_video.dash_url}`
+        `https://cors-anywhere-bfr.herokuapp.com/${post.media.reddit_video.dash_url}`
       ];
     }
 
@@ -41,7 +41,7 @@ const extractVideoUrl = (post: RawPostData): [boolean, string | undefined] => {
 
       return [
         true,
-        `https://cors-anywhere.herokuapp.com/${firstCrosspost.media.reddit_video
+        `https://cors-anywhere-bfr.herokuapp.com/${firstCrosspost.media.reddit_video
           .dash_url}`
       ];
     }
