@@ -1,14 +1,7 @@
-const withTypescript = require('@zeit/next-typescript');
 const withOffline = require('next-offline');
 const withPlugins = require('next-compose-plugins');
 
 module.exports = withPlugins([
-  [
-    withTypescript,
-    {
-      target: 'serverless'
-    }
-  ],
   [
     withOffline,
     {

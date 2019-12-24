@@ -60,9 +60,11 @@ function TopBar() {
             value={store.currentDeck}
             variant="scrollable"
             scrollButtons="on"
-            onChange={(event, deck: IDeck) => store.setCurrentDeck(deck)}
+            onChange={(_event, deck: IDeck) => store.setCurrentDeck(deck)}
           >
-            {store.decks.map((deck) => <Tab key={deck.id} value={deck} label={deck.name} />)}
+            {store.decks.map((deck) => (
+              <Tab key={deck.id} value={deck} label={deck.name} />
+            ))}
           </Tabs>
         </Box>
         <Box flexGrow={1} />

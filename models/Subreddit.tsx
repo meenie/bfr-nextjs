@@ -31,7 +31,10 @@ const Subreddit = types
   .actions((self) => {
     return {
       remove() {
-        getParent(self).removeSubreddit(self);
+        const parent: any = getParent(self);
+        if (parent) {
+          parent.removeSubreddit(self);
+        }
       },
       setIsCompact(v: boolean) {
         self.isCompact = v;

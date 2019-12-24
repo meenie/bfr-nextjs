@@ -10,7 +10,10 @@ const Deck = types
   })
   .actions((self) => ({
     remove() {
-      getParent(self, 2).removeDeck(self);
+      const parent: any = getParent(self, 2);
+      if (parent) {
+        parent.removeDeck(self);
+      }
     },
     removeSubreddit(v: ISubreddit) {
       destroy(v);
