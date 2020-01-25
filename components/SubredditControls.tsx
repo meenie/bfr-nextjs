@@ -81,8 +81,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function SubredditControls({ subreddit }: { subreddit: ISubreddit }) {
   const classes = useStyles();
-  const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState();
-  const [ arrowRef, setArrowRef ] = useState();
+  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState();
+  const [arrowRef, setArrowRef] = useState();
 
   const refreshSwitch = (event: ChangeEvent<HTMLInputElement>) => {
     subreddit.setIsPaused(!event.target.checked);
@@ -128,24 +128,24 @@ function SubredditControls({ subreddit }: { subreddit: ISubreddit }) {
       <IconButton aria-describedby={moreMenuId} onClick={handleMoreMenuClick}>
         <MoreVert />
       </IconButton>
-      <ClickAwayListener onClickAway={() => setMoreMenuAnchorEl(null)}>
-        <Popper
-          className={classes.popper}
-          placement="bottom-end"
-          id={moreMenuId}
-          open={moreMenuOpen}
-          anchorEl={moreMenuAnchorEl}
-          transition
-          modifiers={{
-            arrow: {
-              enabled: true,
-              element: arrowRef
-            }
-          }}
-        >
-          {({ TransitionProps }) => (
-            <Observer>
-              {() => (
+      <Popper
+        className={classes.popper}
+        placement="bottom-end"
+        id={moreMenuId}
+        open={moreMenuOpen}
+        anchorEl={moreMenuAnchorEl}
+        transition
+        modifiers={{
+          arrow: {
+            enabled: true,
+            element: arrowRef
+          }
+        }}
+      >
+        {({ TransitionProps }) => (
+          <Observer>
+            {() => (
+              <ClickAwayListener onClickAway={() => setMoreMenuAnchorEl(null)}>
                 <Fade {...TransitionProps} timeout={350}>
                   <Paper className={classes.popperContent}>
                     <span className={classes.arrow} ref={handleArrowRef} />
@@ -177,11 +177,11 @@ function SubredditControls({ subreddit }: { subreddit: ISubreddit }) {
                     </Box>
                   </Paper>
                 </Fade>
-              )}
-            </Observer>
-          )}
-        </Popper>
-      </ClickAwayListener>
+              </ClickAwayListener>
+            )}
+          </Observer>
+        )}
+      </Popper>
     </Fragment>
   );
 }

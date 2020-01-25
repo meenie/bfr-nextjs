@@ -30,8 +30,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function TopBar() {
   const classes = useStyles();
-  const [ moreMenuAnchorEl, setMoreMenuAnchorEl ] = useState(null);
-  const [ arrowRef, setArrowRef ] = useState(null);
+  const [moreMenuAnchorEl, setMoreMenuAnchorEl] = useState(null);
+  const [arrowRef, setArrowRef] = useState(null);
   const store = useStore();
 
   const handleMoreMenuClick = (event: any) => {
@@ -71,30 +71,32 @@ function TopBar() {
         <IconButton aria-describedby={moreMenuId} onClick={handleMoreMenuClick}>
           <MoreVert />
         </IconButton>
-        <ClickAwayListener onClickAway={closeMoreMenu}>
-          <Popper
-            className={classes.popper}
-            placement="bottom-end"
-            id={moreMenuId}
-            open={moreMenuOpen}
-            anchorEl={moreMenuAnchorEl}
-            transition
-            modifiers={{
-              arrow: {
-                enabled: true,
-                element: arrowRef
-              }
-            }}
-          >
-            {({ TransitionProps }) => (
+
+        <Popper
+          className={classes.popper}
+          placement="bottom-end"
+          id={moreMenuId}
+          open={moreMenuOpen}
+          anchorEl={moreMenuAnchorEl}
+          transition
+          modifiers={{
+            arrow: {
+              enabled: true,
+              element: arrowRef
+            }
+          }}
+        >
+          {({ TransitionProps }) => (
+            <ClickAwayListener onClickAway={closeMoreMenu}>
               <TopBarMoreMenu
                 transitionProps={TransitionProps}
                 handleArrowRef={handleArrowRef}
                 closeMoreMenu={closeMoreMenu}
               />
-            )}
-          </Popper>
-        </ClickAwayListener>
+            </ClickAwayListener>
+          )}
+        </Popper>
+
       </Toolbar>
     </AppBar>
   );
