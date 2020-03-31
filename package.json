@@ -19,7 +19,7 @@
     "mobx": "^5.9.4",
     "mobx-react-lite": "^1.4.0",
     "mobx-state-tree": "^3.14.0",
-    "next": "^9.1.6",
+    "next": "^9.3.2",
     "next-compose-plugins": "^2.2.0",
     "next-offline": "^4.0.1",
     "number-abbreviate": "^2.0.0",
