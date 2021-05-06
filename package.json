@@ -30,7 +30,7 @@
     "react-timeago": "^4.4.0",
     "react-virtualized": "9.21.1",
     "react-window": "^1.8.1",
-    "sanitize-html": "^1.20.1",
+    "sanitize-html": "^2.3.2",
     "use-async-effect": "^2.0.1",
     "use-persisted-state": "^0.3.0",
     "uuidv4": "^4.0.0"
